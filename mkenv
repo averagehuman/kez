@@ -6,6 +6,7 @@
 #
 # Usage:
 #
+#    $ ./mkenv
 #    $ ./mkenv test.env
 #
 ###############################################################################
@@ -18,8 +19,7 @@ if [ -n "$1" ]; then
     dir=$(basename $1)
     envdir="$(cd $root && pwd)/$dir"
 else
-    echo "ERROR: an environment name must be given"
-    exit 1
+    envdir="$(pwd)/env"
 fi
 
 # If the environment 'envdir' does not exist, create it. By default, use conda
@@ -44,6 +44,8 @@ if [ ! -e "$envdir" ]; then
     fi
 fi
 
+touch "$envdir/.orb"
+
 pyexe="$envdir/bin/python"
 pipexe="$envdir/bin/pip"
 
@@ -64,4 +66,7 @@ if [ ! -e "$pipexe" ]; then
     fi
 fi
 
+# Install further requirements
+$pipexe -r requirements.txt
+$pipexe -e .
 

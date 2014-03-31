@@ -3,9 +3,9 @@
 build/
 pip-log.txt
 *~
+env/
 dist/
 *.egg-info/
 example.db
-demo/media/
 
 

@@ -1,1 +1,8 @@
 #!/usr/bin/env python
+
+import melba.ui.application
+
+
+if __name__ == '__main__':
+    melba.ui.application.main()
+

@@ -19,7 +19,7 @@ setup(
         license="BSD",
         py_modules=['melba'],
         scripts = [
-            pathjoin(srcdir, 'bin', 'melba'),
+            'bin/melba',
         ],
 )
     

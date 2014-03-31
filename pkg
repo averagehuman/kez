@@ -1,0 +1,12 @@
+#!/bin/sh
+
+grep "__version__.*dev['\"]$" html2rest.py >/dev/null 2>&1
+
+if [ $? -eq 0 ]; then
+    # dev
+    python setup.py sdist --formats=gztar,zip
+else
+    # not dev
+    python setup.py sdist --formats=gztar,zip register upload
+fi
+
