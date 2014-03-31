@@ -11,6 +11,8 @@
 #
 ###############################################################################
 
+set -e
+
 # If a directory has been given as first parameter, set 'envdir' to its
 # absolute path. Otherwise use a default directory within the current
 # working directory
@@ -63,10 +65,11 @@ if [ ! -e "$pipexe" ]; then
             exit 1
         fi
         $pyexe get-pip.py
+        rm get-pip.py
     fi
 fi
 
 # Install further requirements
-$pipexe -r requirements.txt
-$pipexe -e .
+$pipexe install -r requirements.txt
+$pipexe install -e .
 

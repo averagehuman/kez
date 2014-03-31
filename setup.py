@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-from distutils.core import setup
+from setuptools import setup, find_packages
+
+__version__ = "0.1"
 
 setup(
         name="melba",
@@ -17,7 +19,7 @@ setup(
                     ],
         url="https://github.com/averagehuman/python-melba",
         license="BSD",
-        py_modules=['melba'],
+        packages = find_packages(),
         scripts = [
             'bin/melba',
         ],

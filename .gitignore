@@ -7,5 +7,6 @@ env/
 dist/
 *.egg-info/
 example.db
+.pkgs
 
 

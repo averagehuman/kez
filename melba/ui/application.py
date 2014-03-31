@@ -12,6 +12,15 @@ from cliff.commandmanager import CommandManager, EntryPointWrapper
 from melba import __version__
 from melba.utils import import_object
 
+pathjoin = os.path.join
+expanduser = os.path.expanduser
+
+def get_default_data_path():
+    try:
+        return os.environ["MELBA_DATA_PATH"]
+    except KeyError:
+        return pathjoin(expanduser("~"), ".melba", "data.db")
+
 def iscommandclass(obj):
     return obj is not Command \
             and inspect.isclass(obj) \
@@ -35,6 +44,7 @@ class UICommandManager(CommandManager):
 
     def _load_commands(self):
         self.commands.update(commands_from_module('melba.ui.commands.base', False))
+        self.commands.update(commands_from_module('melba.ui.commands.Add'))
 
     def find_command(self, argv):
         try:
@@ -50,7 +60,7 @@ class UI(App):
 
     def __init__(self):
         super(UI, self).__init__(
-            description='Server provisioning tool.',
+            description='Static Document Builder.',
             version=__version__,
             command_manager=UICommandManager('melba.ui'),
             )
@@ -58,12 +68,12 @@ class UI(App):
     def build_option_parser(self, description, version):
         parser = super(UI, self).build_option_parser(description, version)
         parser.add_argument(
-            '-w',
-            '--working-dir',
+            '-d',
+            '--data-path',
             action='store',
-            dest='workingdir',
-            default=os.environ.get('MELBA_WORKING_DIR') or os.getcwd(),
-            help="change working directory",
+            dest='data_path',
+            default=get_default_data_path(),
+            help="the path to an sqlite database (defaults to '~/.melba/data.db')",
         )
         return parser
 
