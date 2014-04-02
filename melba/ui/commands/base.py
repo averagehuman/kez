@@ -4,8 +4,8 @@ import sys
 import argparse
 
 from cliff.command import Command
-from peewee import SqliteDatabase
 
+from melba.models import sqlite_proxy
 from melba.manager import Manager
 
 
@@ -27,10 +27,6 @@ class BaseCommand(Command):
     @property
     def manager(self):
         if self._manager is None:
-            db_path = self.app.options.data_path
-            db_root_dir = os.path.dirname(db_path)
-            if not os.path.exists(db_root_dir):
-                os.makedirs(db_root_dir)
-            self._manager = Manager(SqliteDatabase(db_path))
+            self._manager = Manager(sqlite_proxy(db_path))
         return self._manager
 

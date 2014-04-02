@@ -2,4 +2,5 @@
 cliff==1.5.2
 pelican==3.3
 peewee==2.2.2
+pytest==2.5.2
 
