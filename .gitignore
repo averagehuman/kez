@@ -8,5 +8,6 @@ dist/
 *.egg-info/
 example.db
 .pkgs
+src/
 
 

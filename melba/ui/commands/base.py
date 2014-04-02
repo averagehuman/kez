@@ -27,6 +27,8 @@ class BaseCommand(Command):
     @property
     def manager(self):
         if self._manager is None:
-            self._manager = Manager(sqlite_proxy(db_path))
+            db_path = self.app.options.data_path
+            storage_root = os.path.dirname(db_path)
+            self._manager = Manager(sqlite_proxy(db_path), storage_root)
         return self._manager
 

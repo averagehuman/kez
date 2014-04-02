@@ -26,6 +26,10 @@ class BaseModel(Model):
 
 class Repo(BaseModel):
     url = CharField(max_length=100, unique=True)
+    vcs = CharField(max_length=20, null=True)
+    host = CharField(max_length=30, null=True)
+    owner = CharField(max_length=40, null=True)
+    slug = CharField(max_length=40, null=True)
 
 class Document(BaseModel):
     repo = ForeignKeyField(Repo, related_name="documents")

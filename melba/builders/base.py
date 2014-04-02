@@ -1,46 +1,13 @@
 
 import os
-from os.path import join as pathjoin, exists as pathexists, dirname, abspath, basename
-from cStringIO import StringIO
-import mimetypes
-import tempfile
-import shutil
-from datetime import datetime
-from fnmatch import fnmatch
-
-from django.conf import settings
-from django.template.defaultfilters import slugify
-from django.core import management
-
-from simples3 import S3Bucket
-from gravy import anyrepo
-
-from bigmouth import models as bigmouth
-from bigmouth.yuitoc import write_yuitoc
-
-RESULTS = dict((y, x) for (x, y) in bigmouth.BuildRecord.FLAGS)
-
-buildersdir = dirname(abspath(__file__))
-builtin_theme_dir = pathjoin(dirname(buildersdir), 'themes')
-
-class DochoundBuildException(Exception):
-    pass
 
 class BuilderBase(object):
     DOCTYPE = None
 
-    def __init__(self, doc):
-        #if self.DOCTYPE:
-        #    doc = getattr(doc, self.DOCTYPE.lower() + 'document')
-        self.doc = doc
-        outdir = doc.get_storage_root()
-        if not pathexists(outdir):
-            os.makedirs(outdir)
-        self.outdir = outdir
-        slug = doc.url_slug or 'sources'
-        self.srcdir = pathjoin(
-            tempfile.mkdtemp(prefix='bigmouth-', suffix='-'+slug),
-            slug,
+    def __init__(self, document):
+        self.document = document
+        self.build_root = pathjoin(
+            tempfile.mkdtemp(prefix='melba-', suffix='-'+document.name),
         )
         self.apidir = pathjoin(self.srcdir, '_api')
         self.logfile = pathjoin(self.outdir, 'bigmouth.log')

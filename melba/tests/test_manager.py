@@ -1,21 +1,24 @@
 
 import pytest
 
-from melba.models import Repo, Document
-from melba.manager import Manager
+from melba.exceptions import *
 
 from .data import *
 
-def test_add_and_delete_repo(db):
-    manager = Manager(db)
+def test_add_repo(manager):
+    assert len(manager.list_repos()) == 0
     repo = manager.add_repo(url=URL1)
     assert repo
     assert repo.url == URL1
-    repos = manager.list_repos()
-    assert len(repos) == 1
+    assert len(manager.list_repos()) == 1
+
+def test_duplicate_repo_error(manager):
+    with pytest.raises(RepoExistsError) as exc_info:
+        manager.add_repo(url=URL1)
+
+def test_delete_repo(manager):
+    assert len(manager.list_repos()) == 1
     ret = manager.delete_repo(URL1)
     assert ret == 1
-    repos = manager.list_repos()
-    assert len(repos) == 0
-
+    assert len(manager.list_repos()) == 0
 
