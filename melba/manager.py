@@ -7,6 +7,8 @@ pathexists = os.path.exists
 pathsplit = os.path.splitext
 
 from peewee import IntegrityError
+from watderepo import watderepo
+from giturlparse import parse as giturlparse
 
 from .models import Repo, Document
 
@@ -16,6 +18,7 @@ class Manager(object):
         self.db = database
 
     def add_repo(self, url):
+        parsed = 
         repo = Repo.create(url=url)
         return repo
 
@@ -26,3 +29,4 @@ class Manager(object):
         q = Repo.delete().where(Repo.url==url)
         return q.execute()
 
+    def _process_repo(self, repo):

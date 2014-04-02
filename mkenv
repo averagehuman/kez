@@ -71,5 +71,9 @@ fi
 
 # Install further requirements
 $pipexe install -r requirements.txt
+for f in $(ls vendor/*.gz); do
+    fpath="file://$(pwd)/$f"
+    $pipexe install $fpath
+done
 $pipexe install -e .
 
