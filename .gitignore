@@ -9,5 +9,6 @@ dist/
 example.db
 .pkgs
 src/
+__VCS__/
 
 

@@ -1,9 +1,13 @@
 
 from datetime import datetime
+from urlparse import urlparse
+
+from slugify import slugify
 
 __all__ = [
     'import_object',
     'String',
+    'slugify_vcs_url',
 ]
 
 def import_object(name):
@@ -54,4 +58,10 @@ class String(object):
     def format_datetime(dt):
         return datetime.strftime(dt, DATETIME_FORMAT)
 
+def slugify_vcs_url(url):
+    path = urlparse(url).path
+    scheme, at, path = path.partition('@')
+    if not at:
+        path = scheme
+    return slugify(path)
 

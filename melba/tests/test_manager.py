@@ -1,9 +1,25 @@
+import shutil
+from tempfile import mkdtemp
 
 import pytest
+
+from vcstools import get_vcs_client
 
 from melba.exceptions import *
 
 from .data import *
+
+pathexists = os.path.exists
+pathjoin = os.path.join
+
+def test_vcs_checkout():
+    tmp= mkdtemp(prefix="melba-test")
+    git = pathjoin(tmp, '.git')
+    assert not pathexists(git)
+    client = get_vcs_client("git", tmp)
+    client.checkout(URL1)
+    assert pathexists(git)
+    shutil.rmtree(tmp)
 
 def test_add_repo(manager):
     assert len(manager.list_repos()) == 0

@@ -1,6 +1,11 @@
 
-cliff==1.5.2
+cliff==1.6.0
+#cliff==1.5.2
 pelican==3.3
 peewee==2.2.2
 pytest==2.5.2
+vcstools==0.1.33
+giturlparse.py==0.0.5
+watdarepo==0.3.0
+python-slugify==0.0.7
 

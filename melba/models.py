@@ -29,7 +29,9 @@ class Repo(BaseModel):
     vcs = CharField(max_length=20, null=True)
     host = CharField(max_length=30, null=True)
     owner = CharField(max_length=40, null=True)
-    slug = CharField(max_length=40, null=True)
+    name = CharField(max_length=40, null=True)
+    slug = CharField(max_length=100, null=True)
+    version = CharField(max_length=40, null=True)
 
 class Document(BaseModel):
     repo = ForeignKeyField(Repo, related_name="documents")

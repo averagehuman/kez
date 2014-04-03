@@ -70,10 +70,10 @@ if [ ! -e "$pipexe" ]; then
 fi
 
 # Install further requirements
-$pipexe install -r requirements.txt
-for f in $(ls vendor/*.gz); do
-    fpath="file://$(pwd)/$f"
-    $pipexe install $fpath
-done
+$pipexe install --find-links=$(pwd)/vendor -r requirements.txt
+#for f in $(ls vendor/*.gz); do
+#    fpath="file://$(pwd)/$f"
+#    $pipexe install $fpath
+#done
 $pipexe install -e .
 
