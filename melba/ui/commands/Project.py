@@ -3,17 +3,21 @@ import argparse
 
 from cliff.lister import Lister
 from melba.exceptions import *
-from melba.models import Repo, Document
+from melba.models import Project, Document
 from .base import BaseCommand, BaseLister, args_to_dict
 
 class Add(BaseCommand):
     """Add a new source code repository
     
-    Eg. melba add repo git://git@github.com/averagehuman/maths.averagehuman.org
+    Eg. melba add project maths-blog git://git@github.com/averagehuman/maths.averagehuman.org
     """
 
     def get_parser(self, prog_name):
         parser = super(Add, self).get_parser(prog_name)
+        parser.add_argument(
+            'name',
+            help="the name of the new project",
+        )
         parser.add_argument(
             'url',
             help="the url of a code repository containing document sources",
@@ -22,9 +26,11 @@ class Add(BaseCommand):
 
     def take_action(self, args):
         try:
-            repo = self.manager.add_repo(args.url)
-        except RepoExistsError:
-            self.app.stderr.write("That repository already exists.\n")
+            project = self.manager.add_project(args.name, args.url)
+        except URLFormatError:
+            self.app.stderr.write("Invalid url.\n")
+        except ObjectExistsError:
+            self.app.stderr.write("That project already exists.\n")
         except Exception, e:
             self.app.stderr.write("ERROR: %s\n" % e)
 
@@ -33,10 +39,10 @@ class List(BaseLister):
 
     def take_action(self, args):
         def iterobjects():
-            for repo in self.manager.list_repos():
-                yield repo.host, repo.vcs, repo.owner, repo.name, repo.url
+            for project in self.manager.list_projects():
+                yield project.name, project.host, project.owner, project.name, project.url
         return (
-            ('Host', 'Type', 'Owner', 'Name', 'Url'),
+            ('Name', 'Host', 'Owner', 'Repo', 'Url'),
             sorted(iterobjects()),
         )
 

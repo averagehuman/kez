@@ -44,7 +44,7 @@ class UICommandManager(CommandManager):
 
     def _load_commands(self):
         self.commands.update(commands_from_module('melba.ui.commands.base', False))
-        self.commands.update(commands_from_module('melba.ui.commands.Repo'))
+        self.commands.update(commands_from_module('melba.ui.commands.Project'))
 
     def find_command(self, argv):
         try:

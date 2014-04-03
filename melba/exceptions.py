@@ -2,6 +2,6 @@
 class URLFormatError(Exception):
     pass
 
-class RepoExistsError(Exception):
+class ObjectExistsError(Exception):
     pass
 

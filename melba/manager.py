@@ -11,7 +11,7 @@ from watdarepo import watdarepo
 from giturlparse import parse as giturlparse
 from vcstools import get_vcs_client
 
-from .models import Repo, Document
+from .models import Project, Document
 from .utils import ensure_dir, slugify_vcs_url
 from .exceptions import *
 
@@ -35,7 +35,7 @@ class Manager(object):
         if kwargs.get("version"):
             client.update(version=kwargs["version"])
 
-    def add_repo(self, url):
+    def add_project(self, name, url):
         wat = watdarepo(url)
         kwargs = {
             "vcs": wat["vcs"],
@@ -48,24 +48,31 @@ class Manager(object):
                 raise URLFormatError(url)
             kwargs["host"] = parsed.host
             kwargs["owner"] = parsed.owner
-            kwargs["name"] = parsed.repo
+            kwargs["repo"] = parsed.repo
             kwargs["url"] = parsed.url2ssh
+        kwargs["name"] = name
         kwargs["slug"] = slugify_vcs_url(kwargs["url"])
         kwargs["version"] = None
         try:
-            Repo.get(Repo.url == url)
-        except Repo.DoesNotExist:
+            Project.get(Project.url == url)
+        except Project.DoesNotExist:
             pass
         else:
-            raise RepoExistsError(url)
+            raise ObjectExistsError(url)
+        try:
+            Project.get(Project.name == name)
+        except Project.DoesNotExist:
+            pass
+        else:
+            raise ObjectExistsError(name)
         self._checkout_or_update_repo(**kwargs)
-        repo = Repo.create(**kwargs)
-        return repo
+        project = Project.create(**kwargs)
+        return project
 
-    def list_repos(self):
-        return list(Repo.select())
+    def list_projects(self):
+        return list(Project.select())
 
-    def delete_repo(self, url):
-        q = Repo.delete().where(Repo.url==url)
+    def delete_project(self, name):
+        q = Project.delete().where(Project.name==name)
         return q.execute()
 
