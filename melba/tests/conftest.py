@@ -1,9 +1,12 @@
 
 import os
+from StringIO import StringIO
+
 import pytest
 
 from melba.models import sqlite_proxy
 from melba.manager import Manager
+from melba.ui.application import UI
 
 from .data import STORAGE_ROOT
 
@@ -32,4 +35,8 @@ def File():
     def FileOpener(relpath, mode="rb"):
         return FileProxy(open(os.path.join(STORAGE_ROOT, relpath.lstrip('/')), mode))
     return FileOpener
+
+@pytest.fixture
+def ui():
+    return UI(stdout=StringIO(), stderr=StringIO())
 

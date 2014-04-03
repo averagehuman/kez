@@ -58,12 +58,14 @@ class UI(App):
     NAME = "melba"
     log = logging.getLogger(__name__)
 
-    def __init__(self):
-        super(UI, self).__init__(
+    def __init__(self, *args, **kwargs):
+        kwargs.update(dict(
             description='Static Document Builder.',
             version=__version__,
             command_manager=UICommandManager('melba.ui'),
             )
+        )
+        super(UI, self).__init__(*args, **kwargs)
 
     def build_option_parser(self, description, version):
         parser = super(UI, self).build_option_parser(description, version)
