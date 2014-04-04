@@ -49,6 +49,8 @@ class Project(BaseModel):
 class Document(BaseModel):
     project = ForeignKeyField(Project, related_name="documents")
     name = CharField(max_length=40, null=False)
+    docroot = CharField(max_length=40, null=False)
+    doctype = CharField(max_length=40, null=False)
     title = CharField(max_length=120, null=False)
     author = CharField(max_length=80, null=True)
     description = TextField(null=True)
@@ -96,9 +98,26 @@ class Repository(object):
             cfg.readfp(fp)
         return cfg
 
-    def update_documents(self):
+    def update_project(self):
         existing = Document.select().join(Project).where(
             Project.name == self.name
         )
         cfg = self.get_project_config()
+        sections = cfg.sections()
+        to_delete = set(obj.name for name in existing) - set(sections)
+        for section in sections:
+            # each section relates to a single document
+            kwargs = dict(
+                name = section,
+                docroot = cfg.get(section,'docroot'),
+                doctype = cfg.get(section,'doctype'),
+            )
+            try:
+                doc = Document.select().join(Project).where(
+                    (Project.name == self.name) & (Document.name == section)
+                ).get()
+            except Document.DoesNotExist:
+                doc = Document.create(
+                    name = section,
+                    docroot = cfg.get(section, 'docroot'
 
