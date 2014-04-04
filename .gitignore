@@ -10,5 +10,6 @@ example.db
 .pkgs
 src/
 __VCS__/
+.coverage
 
 
