@@ -5,3 +5,6 @@ class URLFormatError(Exception):
 class ObjectExistsError(Exception):
     pass
 
+class MissingOrInvalidConfig(Exception):
+    pass
+

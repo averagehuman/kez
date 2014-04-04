@@ -5,5 +5,5 @@ test:
 	@if [ ! -e env/bin/py.test ] || [ ! -e env/bin/coverage ]; then \
 		./env/bin/pip install -r test-requirements.txt; \
 	fi
-	@./env/bin/py.test --cov-report term --cov melba melba/tests
+	@./env/bin/py.test --doctest-glob='*.rst' --cov-report term --cov melba .
 

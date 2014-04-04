@@ -9,9 +9,8 @@ pathsplit = os.path.splitext
 from peewee import IntegrityError
 from watdarepo import watdarepo
 from giturlparse import parse as giturlparse
-from vcstools import get_vcs_client
 
-from .models import Project, Document
+from .models import Project, Document, Repository
 from .utils import ensure_dir, slugify_vcs_url
 from .exceptions import *
 
@@ -22,18 +21,8 @@ class Manager(object):
         self.vcs_cache = os.path.join(storage_root, '__VCS__')
         ensure_dir(self.vcs_cache)
 
-    def _checkout_or_update_repo(self, **kwargs):
-        checkout = os.path.join(
-            self.vcs_cache, kwargs["slug"]
-        )
-        # if checkout directory exists and is empty, remove it
-        if pathexists(checkout) and os.path.isdir(checkout) and not os.listdir(checkout):
-            os.rmdir(checkout)
-        client = get_vcs_client(kwargs["vcs"], checkout)
-        if not client.path_exists():
-            client.checkout(kwargs["url"])
-        if kwargs.get("version"):
-            client.update(version=kwargs["version"])
+    def _get_project_repo(self, project):
+        return Repository(project, self.vcs_cache)
 
     def add_project(self, name, url):
         wat = watdarepo(url)
@@ -65,8 +54,14 @@ class Manager(object):
             pass
         else:
             raise ObjectExistsError(name)
-        self._checkout_or_update_repo(**kwargs)
-        project = Project.create(**kwargs)
+        # create a new Project instance
+        project = Project(**kwargs)
+        # checkout project repo and ensure a valid config file before saving
+        repo = project.get_repo_object(self.vcs_cache)
+        repo.checkout()
+        repo.get_project_config()
+        # save and return project
+        project.save()
         return project
 
     def list_projects(self):
@@ -75,4 +70,16 @@ class Manager(object):
     def delete_project(self, name):
         q = Project.delete().where(Project.name==name)
         return q.execute()
+
+    def add_s3_credentials(self, name=None):
+        pass
+
+    def build_project(self, name):
+        repo = Repository.instance(name, self.vcs_cache)
+        docs = repo.get_or_create_documents()
+        return docs
+
+    def build_all(self):
+        pass
+
 
