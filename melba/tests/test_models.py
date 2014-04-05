@@ -3,12 +3,12 @@ import pytest
 
 import peewee
 
-from melba.models import Project, Document
+from melba.models import Project, Document, Repository
 
 from .data import *
 
 
-def test_create_repo(db):
+def test_create_project(db):
     query = list(Project.select())
     assert len(query) == 0
     project = Project.create(name="blog", url=URL1)
@@ -24,7 +24,13 @@ def test_empty_and_non_empty_query():
     query = Project.select().where(Project.url==URL1)
     assert len(list(query)) == 1
 
-def test_delete_repo(db):
+def test_process_project_repository(vcs_cache):
+    repo = Repository.instance("blog", vcs_cache)
+    assert(len(list(Document.select()))) == 0
+    repo.process()
+    assert(len(list(Document.select()))) == 1
+
+def test_delete_project(db):
     query = Project.select().where(Project.url==URL1)
     assert len(list(query)) == 1
     project = query[0]
@@ -34,4 +40,5 @@ def test_delete_repo(db):
     dq.execute()
     query = Project.select().where(Project.url==URL1)
     assert len(list(query)) == 0
+
 

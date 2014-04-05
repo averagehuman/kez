@@ -8,3 +8,6 @@ class ObjectExistsError(Exception):
 class MissingOrInvalidConfig(Exception):
     pass
 
+class ConfigurationError(Exception):
+    pass
+

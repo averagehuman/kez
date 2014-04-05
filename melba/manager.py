@@ -11,7 +11,7 @@ from watdarepo import watdarepo
 from giturlparse import parse as giturlparse
 
 from .models import Project, Document, Repository
-from .utils import ensure_dir, slugify_vcs_url
+from .utils import ensure_dir
 from .exceptions import *
 
 class Manager(object):
@@ -40,7 +40,6 @@ class Manager(object):
             kwargs["repo"] = parsed.repo
             kwargs["url"] = parsed.url2ssh
         kwargs["name"] = name
-        kwargs["slug"] = slugify_vcs_url(kwargs["url"])
         kwargs["version"] = None
         try:
             Project.get(Project.url == url)

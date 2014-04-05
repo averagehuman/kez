@@ -17,6 +17,10 @@ def storage_root():
     return STORAGE_ROOT
 
 @pytest.fixture
+def vcs_cache(storage_root):
+    return os.path.join(storage_root, '__VCS__')
+
+@pytest.fixture
 def db():
     global _proxy
     if _proxy is None:
