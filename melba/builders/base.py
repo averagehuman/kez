@@ -1,143 +1,63 @@
 
 import os
+import sys
 
-class BuilderBase(object):
-    DOCTYPE = None
+from melba.exceptions import *
 
-    def __init__(self, document):
-        self.document = document
-        self.build_root = pathjoin(
-            tempfile.mkdtemp(prefix='melba-', suffix='-'+document.name),
-        )
-        self.apidir = pathjoin(self.srcdir, '_api')
-        self.logfile = pathjoin(self.outdir, 'bigmouth.log')
-        self.note = lambda s: self._log.write(s+'\n')
-        self.record = None
+pathjoin = os.path.join
+pathexists = os.path.exists
+
+class status:
+    PENDING = 1
+    ERROR = 2
+    SUCCESS = 3
+
+class BuildController(object):
+
+    def __init__(self, doctype, src, dst, options=None):
+        self.doctype = doctype
+        self.src = src
+        self.dst = dst
+        self.options = options or {}
+        self.logfile = pathjoin(self.dst, 'melba.log')
+        self.status = None
+        self.exc_info = None
+        self._build_func = self._get_build_func()
         self._log = None
-        self._repo = None
 
-    @property
-    def repo(self):
-        if self._repo is None:
-            branch = self.doc.branch
-            repo = branch.repo
-            repo = anyrepo(repo.owner.provider, repo.owner.username, repo.slug)
-            repo.clone()
+    def _get_build_func(self):
+        module = 'melba.builders.' + self.doctype.lower()
+        try:
+            m = sys.modules[module]
+        except KeyError:
             try:
-                repo.pull(update=True)
-            except:
-                pass
-            repo.checkout(branch.name)
-            self._repo = repo
-        return self._repo
+                __import__(module)
+            except ImportError:
+                raise ConfigurationError("No builder for doctype '%s'" % self.doctype)
+            m = sys.modules[module]
+        return m.build
 
-    def set_result(self, label, message=None):
-        self.record.status = RESULTS[label]
-        self.record.status_msg = message or ''
-
-    # unused
-    def get_document_context(self):
-        return {
-            'doc_slug': self.doc.url_slug,
-        }
-
-    def get_sources(self, globs=None, dest_format=None, markup_flavor=None):
-        assert not pathexists(self.srcdir)
-        docroot = self.doc.docroot
-        docfile = self.doc.docfile
-        if docfile:
-            src = pathjoin(docroot, docfile)
-            dest = pathjoin(self.srcdir, docfile)
-            self.repo.copyfile(src, dest)
+    def build(self, stdout=None, stderr=None):
+        self.start()
+        self.status = status.PENDING
+        try:
+            self._build_func(self.src, self.dst, kw, stdout, stderr)
+        except Exception, e:
+            self.status = status.ERROR
+            self.exc_info = e
         else:
-            self.repo.copyfiles(self.srcdir, root=docroot, symlinks=True)
-
-    def write_toc(self, master_doc, nodes):
-        outfile = self.doc.get_storage_root() + 'toc.js'
-        write_yuitoc(outfile, master_doc, self.doc.get_storage_url(), nodes)
-
-    def build(self, **kw):
-        raise NotImplementedError()
-
-    def build_python_api(self, package_name=None, package_root=None):
-        package_root = package_root or ''
-        package_root = package_root.strip('/')
-        doc = self.doc
-        kwargs = dict(
-            branch=doc.branch,
-            doctype='EPYDOC',
-            category=doc.category,
-        )
-        if package_name and package_root:
-            pyfiles = [(package_name, package_root)]
-        else:
-            #find packages and modules
-            manifest = self.repo.find_py_files()
-            #ignore modules if there are packages
-            pyfiles = manifest['packages'] or manifest['modules']
-            found = set(X[1] for X in pyfiles)
-            for obj in bigmouth.EpydocDocument.objects.filter(**kwargs):
-                if obj.docroot not in found:
-                    obj.delete()
-        for name, path in pyfiles:
-            query = dict(kwargs)
-            if path.endswith('.py'):
-                query['docfile'] = basename(path)
-                query['module'] = name
-                path = dirname(path)
-            query['docroot'] = path
-            document, new = bigmouth.EpydocDocument.objects.get_or_create(**query)
-            if new:
-                try:
-                    title = "%s %s python API (%s)" % (doc.repo_slug, doc.branch.name, path)
-                    document.title = title[:100]
-                    document.url_slug = slugify(title.replace('python', 'py').replace('/', ' '))
-                    document.package_name = name[:80]
-                    document.hidden = True
-                    document.save()
-                    doc.associated.add(document)
-                except Exception, e:
-                    try:
-                        document.delete()
-                    except:
-                        pass
-                    raise Exception("Error while creating new Epydoc document - %s" % e)
-            document.build()
+            self.status = status.SUCCESS
+        finally:
+            self.finish()
 
     def start(self):
         self._log = open(self.logfile, 'wb')
-        record = bigmouth.BuildRecord(document=self.doc, start=datetime.now())
-        record.save()
-        self.record = record
 
     def finish(self, **kw):
         try:
-            stores = [s.strip().lower() for s in kw.get('store', '').split(',')]
-            for store in stores:
-                if store:
-                    store_method = getattr(self, 'store_' + store)
-                    store_method(**kw)
-            clean = kw.get('clean', False)
-            if clean:
-                # remove the local store
-                if pathexists(self.outdir):
-                    shutil.rmtree(self.outdir)
-            if pathexists(self.srcdir):
-                shutil.rmtree(self.srcdir)
-        except Exception, e:
-            self.set_result('ERROR', str(e))
-        else:
-            self.set_result('SUCCESS')
-        finally:
-            try:
-                self.record.finish = datetime.now()
-                self.record.save()
-            except:
-                pass
-            try:
-                self._log.close()
-            except:
-                pass
+            self._log.close()
+        except:
+            pass
 
 
     def store_all(self, **kw):

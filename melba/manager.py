@@ -85,7 +85,9 @@ class Manager(object):
 
     def build_project(self, name):
         repo = Repository.instance(name, self.vcs_cache)
-        return docs
+        docs = repo.process()
+        for doc in docs:
+            doc.build()
 
     def build_all(self):
         pass

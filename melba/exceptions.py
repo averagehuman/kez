@@ -11,3 +11,6 @@ class MissingOrInvalidConfig(Exception):
 class ConfigurationError(Exception):
     pass
 
+class UnknownBuilderError(Exception):
+    pass
+

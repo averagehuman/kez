@@ -1,5 +1,6 @@
 
 import os
+import tempfile
 from ConfigParser import ConfigParser, NoOptionError
 
 from peewee import Proxy, Model, SqliteDatabase
@@ -61,18 +62,36 @@ class Project(BaseModel):
 
     def get_document(self, docname):
         return Document.select().join(Project).where(
-            (Project.name == self.name) & (Document.name == docname)
+            (Project.id == self.id) & (Document.name == docname)
         ).get()
+
+    def get_document_set(self):
+        return Document.select().join(Project).where(
+            (Project.id == self.id)
+        )
 
 class Document(BaseModel):
     project = ForeignKeyField(Project, related_name="documents")
     name = CharField(max_length=40, null=False)
-    docroot = CharField(max_length=40)
+    docroot = CharField(max_length=40, null=True)
     doctype = CharField(max_length=40)
     title = CharField(max_length=120, null=True)
     author = CharField(max_length=80, null=True)
     description = TextField(null=True)
     last_build = DateTimeField(null=True)
+
+    def _set_docroot(self):
+        if not hasattr(self, 'docroot') or self.docroot = None:
+            self.docroot = ''
+        self.docroot = self.docroot.strip('.').strip('/').strip('\\').strip('.')
+
+    def __init__(self, *args, **kwargs):
+        super(Document, self).__init__(*args, **kwargs)
+        self._set_docroot()
+
+    def save(self, *args, **kwargs):
+        self._set_docroot()
+        return super(Document, self).save(*args, **kwargs)
 
 class Repository(object):
     """A wrapper for a Project object that deals with that project's source repo"""
@@ -113,9 +132,9 @@ class Repository(object):
         return cfg
 
     def process(self):
-        existing = Document.select().join(Project).where(
-            Project.name == self.name
-        )
+        """Read the project config file and create/update any documents defined there
+        """
+        existing = self._project.get_document_set()
         cfg = self.get_project_config()
         sections = cfg.sections()
         to_delete = set(obj.name for name in existing) - set(sections)
@@ -123,18 +142,19 @@ class Repository(object):
             # each section relates to a single document
             kwargs = {}
             try:
-                kwargs['docroot'] = cfg.get(section,'docroot')
+                kwargs['docroot'] = cfg.get(section, 'docroot')
             except NoOptionError, e:
-                kwargs['docroot'] = '.'
+                kwargs['docroot'] = None
+            kwargs['docroot'] = (kwargs['docroot'] or '').strip('.')
             try:
-                kwargs['doctype'] = cfg.get(section,'doctype')
+                kwargs['doctype'] = cfg.get(section, 'doctype')
             except NoOptionError, e:
                 raise ConfigurationError(str(e))
-            kwargs['name'] = section
-            kwargs['project'] = self._project
             try:
                 doc = self._project.get_document(section)
             except Document.DoesNotExist:
+                kwargs['name'] = section
+                kwargs['project'] = self._project
                 doc = Document.create(**kwargs)
             else:
                 for k,v in kwargs.items():
@@ -143,5 +163,19 @@ class Repository(object):
         for docname in to_delete:
             doc = self._project.get_document(section)
             doc.delete_instance()
+        return [
+            RepositoryDocument(d, self._checkout) for d in self._project.get_document_set()
+        ]
 
+class RepositoryDocument(object):
 
+    def __init__(self, document, vcs_path, dst=None):
+        self._document = document
+        self._src = pathjoin(vcs_path.strip('/'), document.docroot)
+        self.dst = dst or tempfile.mkdtemp(prefix='melba-', suffix='-'+doctype)
+
+    def build(self):
+        controller = BuildController(
+            self._document.doctype, self._src, self.dst
+        builder.start()
+        builder

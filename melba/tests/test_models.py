@@ -1,12 +1,25 @@
 
-import pytest
+import shutil
+from tempfile import mkdtemp
 
+import pytest
 import peewee
+from vcstools import get_vcs_client
 
 from melba.models import Project, Document, Repository
-
 from .data import *
 
+pathexists = os.path.exists
+pathjoin = os.path.join
+
+def test_vcs_checkout():
+    tmp= mkdtemp(prefix="melba-test")
+    git = pathjoin(tmp, '.git')
+    assert not pathexists(git)
+    client = get_vcs_client("git", tmp)
+    client.checkout(URL1)
+    assert pathexists(git)
+    shutil.rmtree(tmp)
 
 def test_create_project(db):
     query = list(Project.select())
