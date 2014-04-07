@@ -73,13 +73,6 @@ class Manager(object):
     def add_s3_credentials(self, name=None):
         pass
 
-    def _update_project(self, project, noclobber=False):
-        repo = project.get_repo_object(self.vcs_cache)
-        orphans, docs = repo.get_or_create_documents()
-        if not noclobber:
-            for doc in orphans:
-                doc.delete()
-
     def update_project(self, name):
         pass
 

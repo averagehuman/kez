@@ -1,7 +1,6 @@
 
 import os
 import tempfile
-from ConfigParser import ConfigParser, NoOptionError
 
 from peewee import Proxy, Model, SqliteDatabase
 from peewee import CharField, ForeignKeyField, TextField, DateTimeField
@@ -9,7 +8,8 @@ from peewee import CharField, ForeignKeyField, TextField, DateTimeField
 from vcstools import get_vcs_client
 
 from .exceptions import *
-from .utils import ensure_dir, slugify_vcs_url
+from .utils import ensure_dir, slugify_vcs_url, evaluate_config_options
+from .utils import ConfigParser, NoOptionError
 
 pathjoin = os.path.join
 pathexists = os.path.exists
@@ -81,7 +81,7 @@ class Document(BaseModel):
     last_build = DateTimeField(null=True)
 
     def _set_docroot(self):
-        if not hasattr(self, 'docroot') or self.docroot = None:
+        if not hasattr(self, 'docroot') or self.docroot is None:
             self.docroot = ''
         self.docroot = self.docroot.strip('.').strip('/').strip('\\').strip('.')
 
@@ -133,6 +133,8 @@ class Repository(object):
 
     def process(self):
         """Read the project config file and create/update any documents defined there
+
+        Return a list of `RepositoryDocument` objects.
         """
         existing = self._project.get_document_set()
         cfg = self.get_project_config()
@@ -163,19 +165,32 @@ class Repository(object):
         for docname in to_delete:
             doc = self._project.get_document(section)
             doc.delete_instance()
-        return [
-            RepositoryDocument(d, self._checkout) for d in self._project.get_document_set()
-        ]
+        docs = []
+        for doc in self._project.get_document_set():
+            options, settings = evaluate_config_options(cfg, doc.name)
+            docs.append(
+                RepositoryDocument(doc, self._checkout, options, settings)
+            )
+        return docs
 
 class RepositoryDocument(object):
 
-    def __init__(self, document, vcs_path, dst=None):
-        self._document = document
-        self._src = pathjoin(vcs_path.strip('/'), document.docroot)
-        self.dst = dst or tempfile.mkdtemp(prefix='melba-', suffix='-'+doctype)
+    def __init__(self, document, vcs_path, options, settings):
+        self.document = document
+        self.vcs_path = vcs_path
+        self.options = options
+        self.settings = settings
+        self.output_path = None
 
-    def build(self):
+    def build(self, dst=None, option_overrides=None):
+        src = pathjoin(vcs_path.strip('/'), self.document.docroot)
+        dst = dst or tempfile.mkdtemp(prefix='melba-', suffix='-'+self.document.doctype)
+        options = self.options.copy()
+        if option_overrides:
+            options.update(option_overrides)
         controller = BuildController(
-            self._document.doctype, self._src, self.dst
-        builder.start()
-        builder
+            self.document.doctype, src, dst, options, self.settings
+        )
+        controller.build()
+        self.output_path = dst
+

@@ -2,12 +2,21 @@
 from datetime import datetime
 from urlparse import urlparse
 
+try:
+    from configparser import ConfigParser as BaseParser, NoOptionError
+except ImportError:
+    from ConfigParser import ConfigParser as BaseParser, NoOptionError
+    from ast import literal_eval
+
 from slugify import slugify
 
 __all__ = [
     'import_object',
     'String',
     'slugify_vcs_url',
+    'evaluate_config_options',
+    'ConfigParser',
+    'NoOptionError',
 ]
 
 def import_object(name):
@@ -64,4 +73,31 @@ def slugify_vcs_url(url):
     if not at:
         path = scheme
     return slugify(path)
+
+class Python2Parser(BaseParser):
+
+    def _interpolate(self, section, option, rawval, vars):
+        try:
+            return literal_eval(rawval)
+        except:
+            return ''
+
+def ConfigParser():
+    try:
+        import configparser
+    except ImportError:
+        return Python2Parser()
+    else:
+        from .typedinterpolation import TypedBasicInterpolation
+        return BaseParser(interpolation=TypedBasicInterpolation)
+
+def evaluate_config_options(cfg, section):
+    options = {}
+    settings = {}
+    for k, v in cfg.items(section):
+        if k == k.lower():
+            options[k] = v
+        elif k == k.upper():
+            settings[k] = v
+    return options, settings
 
