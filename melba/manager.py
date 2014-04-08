@@ -19,6 +19,7 @@ class Manager(object):
     def __init__(self, database, storage_root):
         self.db = database
         self.vcs_cache = os.path.join(storage_root, '__VCS__')
+        self.build_cache = os.path.join(storage_root, '__BUILD__')
         ensure_dir(self.vcs_cache)
 
     def _get_project_repo(self, project):
@@ -76,13 +77,31 @@ class Manager(object):
     def update_project(self, name):
         pass
 
-    def build_project(self, name):
-        repo = Repository.instance(name, self.vcs_cache)
+    def _build_document(self, repo, docname, output_path=None):
+    def build_project(self, project, docname=None, output_path=None):
+        dst = dstroot = None
+        repo = Repository.instance(project, self.vcs_cache)
         docs = repo.process()
-        for doc in docs:
-            doc.build()
+        doc = None
+        if docname:
+            for d in docs:
+                if d.name == docname:
+                    doc = d
+                    break
+            if not doc:
+                raise UnknownDocumentError(project, docname)
+            docs[:] = [doc]
+            if output_path:
+                dst = output_path
+            else:
+                dstroot = self.build_cache
+        else:
+            dstroot = output_path or self.build_cache
+        for d in docs:
+            d.build(dst=dst, dstroot=dstroot)
 
     def build_all(self):
-        pass
+        for project in Project.select():
+            self.build_project(project)
 
 

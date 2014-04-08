@@ -13,6 +13,7 @@ from slugify import slugify
 __all__ = [
     'import_object',
     'String',
+    'slugify',
     'slugify_vcs_url',
     'evaluate_config_options',
     'ConfigParser',

@@ -8,8 +8,9 @@ from peewee import CharField, ForeignKeyField, TextField, DateTimeField
 from vcstools import get_vcs_client
 
 from .exceptions import *
-from .utils import ensure_dir, slugify_vcs_url, evaluate_config_options
+from .utils import ensure_dir, slugify, slugify_vcs_url, evaluate_config_options
 from .utils import ConfigParser, NoOptionError
+from .utils import syncfiles
 
 pathjoin = os.path.join
 pathexists = os.path.exists
@@ -32,30 +33,36 @@ def _create_tables():
     Document.create_table(fail_silently=True)
 
 class BaseModel(Model):
+
     class Meta:
         database = _db
 
-class Project(BaseModel):
+class SluggedModel(BaseModel):
+    slug = CharField(max_length=100)
+
+    def set_slug(self):
+        raise NotImplementedError
+
+    def __init__(self, *args, **kwargs):
+        super(SluggedModel, self).__init__(*args, **kwargs)
+        self.set_slug()
+
+    def save(self, *args, **kwargs):
+        self.set_slug()
+        return super(SluggedModel, self).save(*args, **kwargs)
+
+class Project(SluggedModel):
     name = CharField(max_length=20, unique=True)
     url = CharField(max_length=100, unique=True)
-    slug = CharField(max_length=100)
     vcs = CharField(max_length=20, null=True)
     host = CharField(max_length=30, null=True)
     owner = CharField(max_length=40, null=True)
     repo = CharField(max_length=40, null=True)
     version = CharField(max_length=40, null=True)
 
-    def _set_slug(self):
-        if (hasattr(self, 'url') and self.url) and (not hasattr(self, 'slug') or not self.slug):
+    def set_slug(self):
+        if hasattr(self, 'url') and self.url:
             self.slug = slugify_vcs_url(self.url)
-
-    def __init__(self, *args, **kwargs):
-        super(Project, self).__init__(*args, **kwargs)
-        self._set_slug()
-
-    def save(self, *args, **kwargs):
-        self._set_slug()
-        return super(Project, self).save(*args, **kwargs)
 
     def get_repo_object(self, vcs_cache):
         return Repository(self, vcs_cache)
@@ -70,7 +77,7 @@ class Project(BaseModel):
             (Project.id == self.id)
         )
 
-class Document(BaseModel):
+class Document(SluggedModel):
     project = ForeignKeyField(Project, related_name="documents")
     name = CharField(max_length=40, null=False)
     docroot = CharField(max_length=40, null=True)
@@ -80,25 +87,30 @@ class Document(BaseModel):
     description = TextField(null=True)
     last_build = DateTimeField(null=True)
 
-    def _set_docroot(self):
+    def set_slug(self):
+        if (hasattr(self, 'name') and self.name) and (hasattr(self, 'project') and self.project):
+            self.slug = slugify(self.project.name + ' ' + self.name)
+
+    def set_docroot(self):
         if not hasattr(self, 'docroot') or self.docroot is None:
             self.docroot = ''
         self.docroot = self.docroot.strip('.').strip('/').strip('\\').strip('.')
 
     def __init__(self, *args, **kwargs):
         super(Document, self).__init__(*args, **kwargs)
-        self._set_docroot()
+        self.set_docroot()
 
     def save(self, *args, **kwargs):
-        self._set_docroot()
+        self.set_docroot()
         return super(Document, self).save(*args, **kwargs)
 
 class Repository(object):
     """A wrapper for a Project object that deals with that project's source repo"""
 
     @classmethod
-    def instance(cls, project_name, vcs_cache):
-        project = Project.get(Project.name == project_name)
+    def instance(cls, project, vcs_cache):
+        if isinstance(project, basestring):
+            project = Project.get(Project.name == project)
         return cls(project, vcs_cache)
 
     def __init__(self, project, vcs_cache):
@@ -169,28 +181,39 @@ class Repository(object):
         for doc in self._project.get_document_set():
             options, settings = evaluate_config_options(cfg, doc.name)
             docs.append(
-                RepositoryDocument(doc, self._checkout, options, settings)
+                RepositoryDocument(
+                    self._project, doc, self._checkout, options, settings
+                )
             )
         return docs
 
 class RepositoryDocument(object):
+
+    @classmethod
+    def instance(cls, project, docname):
+        return Document.select().join(Project).where(
+            (Project.id == self.id) & (Document.name == docname)
+        ).get()
 
     def __init__(self, document, vcs_path, options, settings):
         self.document = document
         self.vcs_path = vcs_path
         self.options = options
         self.settings = settings
-        self.output_path = None
+        self.dst = None
 
-    def build(self, dst=None, option_overrides=None):
+    def build(self, dst=None, dstroot=None, option_overrides=None):
+        if not any([dst, dstroot]):
+            raise Exception("a destination directory or a destination root directory must be given")
         src = pathjoin(vcs_path.strip('/'), self.document.docroot)
-        dst = dst or tempfile.mkdtemp(prefix='melba-', suffix='-'+self.document.doctype)
+        tmp = tempfile.mkdtemp(prefix='melba-', suffix='-'+self.document.doctype)
+        self.dst = dst or pathjoin(dstroot, self.document.slug)
         options = self.options.copy()
         if option_overrides:
             options.update(option_overrides)
         controller = BuildController(
-            self.document.doctype, src, dst, options, self.settings
+            self.document.doctype, src, tmp, options, self.settings
         )
         controller.build()
-        self.output_path = dst
+        syncfiles(tmp, dst)
 

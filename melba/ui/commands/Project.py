@@ -58,11 +58,18 @@ class Build(BaseCommand):
             'name',
             help="the name of a registered project",
         )
+        parser.add_argument(
+            '-o',
+            '--output-path',
+            action='store',
+            dest='output_path',
+            help="the path to a directory to place the project's built documents",
+        )
         return parser
 
     def take_action(self, args):
         try:
-            docs = self.manager.build_project(args.name)
+            docs = self.manager.build_project(args.name, output_path=args.output_path)
             for doc in docs:
                 self.app.stdout.write("%s\n" % doc.name)
         except Exception, e:
