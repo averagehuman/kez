@@ -2,6 +2,7 @@
 import pytest
 
 from melba.utils import parse_vcs_url
+from melba.utils import ConfigParser
 
 from .data import URL1
 
@@ -13,5 +14,16 @@ def test_parse_git_ssh_url():
     assert kw["host"] == "github"
     assert kw["owner"] == "averagehuman"
     assert kw["repo"] == "maths.averagehuman.org"
-    assert kw["slug"] == "github-averagehuman-maths-averagehuman-org-git"
+    assert kw["slug"] == "github-com-averagehuman-maths-averagehuman-org-git"
+
+def test_config_parser(File):
+    cfg = ConfigParser()
+    with File("example.cfg") as fp:
+        cfg.readfp(fp)
+    strkey = cfg.get("section", "strkey")
+    intkey = cfg.get("section", "intkey")
+    listkey = cfg.get("section", "listkey")
+    assert strkey == "pelican"
+    assert intkey == 42
+    assert listkey == [2, 4, 6, 8]
 
