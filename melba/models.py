@@ -10,7 +10,8 @@ from vcstools import get_vcs_client
 from .exceptions import *
 from .utils import ensure_dir, slugify, slugify_vcs_url, evaluate_config_options
 from .utils import ConfigParser, NoOptionError
-from .utils import syncfiles
+from .utils import ensure_dir, parse_vcs_url, syncfiles
+from .builders import BuildController
 
 pathjoin = os.path.join
 pathexists = os.path.exists
@@ -54,11 +55,17 @@ class SluggedModel(BaseModel):
 class Project(SluggedModel):
     name = CharField(max_length=20, unique=True)
     url = CharField(max_length=100, unique=True)
-    vcs = CharField(max_length=20, null=True)
+    vcs = CharField(max_length=20)
     host = CharField(max_length=30, null=True)
     owner = CharField(max_length=40, null=True)
     repo = CharField(max_length=40, null=True)
     version = CharField(max_length=40, null=True)
+
+    @classmethod
+    def from_url(cls, url, name=None):
+        kwargs = parse_vcs_url(url)
+        kwargs["name"] = name or kwargs.get("repo") or kwargs["slug"]
+        return cls(**kwargs)
 
     def set_slug(self):
         if hasattr(self, 'url') and self.url:
@@ -117,11 +124,8 @@ class Repository(object):
         self._project = project
         self._checkout = os.path.join(vcs_cache, project.slug)
 
-    def __getattr__(self, key):
-        return getattr(self._project, key)
-
     def _get_vcs_client(self):
-        return get_vcs_client(self.vcs, self._checkout)
+        return get_vcs_client(self._project.vcs, self._checkout)
 
     def checkout(self):
         path = self._checkout
@@ -130,9 +134,8 @@ class Repository(object):
             os.rmdir(path)
         client = self._get_vcs_client()
         if not client.path_exists():
-            client.checkout(self.url)
-        if self.version:
-            client.update(version=self.version)
+            client.checkout(self._project.url)
+        client.update(version=self._project.version)
 
     def get_project_config(self):
         fpath = pathjoin(self._checkout, 'servus.cfg')
@@ -151,7 +154,7 @@ class Repository(object):
         existing = self._project.get_document_set()
         cfg = self.get_project_config()
         sections = cfg.sections()
-        to_delete = set(obj.name for name in existing) - set(sections)
+        to_delete = set(obj.name for obj in existing) - set(sections)
         for section in sections:
             # each section relates to a single document
             kwargs = {}
@@ -182,7 +185,7 @@ class Repository(object):
             options, settings = evaluate_config_options(cfg, doc.name)
             docs.append(
                 RepositoryDocument(
-                    self._project, doc, self._checkout, options, settings
+                    doc, self._checkout, options, settings
                 )
             )
         return docs
@@ -197,7 +200,7 @@ class RepositoryDocument(object):
 
     def __init__(self, document, vcs_path, options, settings):
         self.document = document
-        self.vcs_path = vcs_path
+        self.vcs_path = vcs_path.rstrip('/')
         self.options = options
         self.settings = settings
         self.dst = None
@@ -205,7 +208,7 @@ class RepositoryDocument(object):
     def build(self, dst=None, dstroot=None, option_overrides=None):
         if not any([dst, dstroot]):
             raise Exception("a destination directory or a destination root directory must be given")
-        src = pathjoin(vcs_path.strip('/'), self.document.docroot)
+        src = pathjoin(self.vcs_path, self.document.docroot)
         tmp = tempfile.mkdtemp(prefix='melba-', suffix='-'+self.document.doctype)
         self.dst = dst or pathjoin(dstroot, self.document.slug)
         options = self.options.copy()
@@ -215,5 +218,5 @@ class RepositoryDocument(object):
             self.document.doctype, src, tmp, options, self.settings
         )
         controller.build()
-        syncfiles(tmp, dst)
+        syncfiles(tmp, self.dst)
 

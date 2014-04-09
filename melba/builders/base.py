@@ -14,11 +14,12 @@ class status:
 
 class BuildController(object):
 
-    def __init__(self, doctype, src, dst, options=None):
+    def __init__(self, doctype, src, dst, options=None, settings=None):
         self.doctype = doctype
         self.src = src
         self.dst = dst
         self.options = options or {}
+        self.settings = options or {}
         self.logfile = pathjoin(self.dst, 'melba.log')
         self.status = None
         self.exc_info = None
@@ -26,7 +27,7 @@ class BuildController(object):
         self._log = None
 
     def _get_build_func(self):
-        module = 'melba.builders.' + self.doctype.lower()
+        module = 'melba.builders.' + self.doctype.lower() + 'builder'
         try:
             m = sys.modules[module]
         except KeyError:
@@ -41,7 +42,9 @@ class BuildController(object):
         self.start()
         self.status = status.PENDING
         try:
-            self._build_func(self.src, self.dst, kw, stdout, stderr)
+            self._build_func(
+                self.src, self.dst, self.options, self.settings, stdout, stderr
+            )
         except Exception, e:
             self.status = status.ERROR
             self.exc_info = e

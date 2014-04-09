@@ -47,16 +47,23 @@ class Add(BaseCommand):
             self.app.stderr.write("ERROR: %s\n" % e)
 
 class Build(BaseCommand):
-    """Build all documents for a given project
+    """Build each document in a given project, or one or nore specified documents
     
-    Eg. melba project build "maths-blog"
+    Eg. 
+        $ melba project build phd
+        $ melba project build phd prelim-findings
     """
 
     def get_parser(self, prog_name):
         parser = super(Add, self).get_parser(prog_name)
         parser.add_argument(
-            'name',
+            'project',
             help="the name of a registered project",
+        )
+        parser.add_argument(
+            'docs',
+            nargs='*',
+            help="optionally specify one or many documents to buld",
         )
         parser.add_argument(
             '-o',
@@ -69,7 +76,9 @@ class Build(BaseCommand):
 
     def take_action(self, args):
         try:
-            docs = self.manager.build_project(args.name, output_path=args.output_path)
+            docs = self.manager.build_project(
+                args.project, docs=args.docs, output_path=args.output_path
+            )
             for doc in docs:
                 self.app.stdout.write("%s\n" % doc.name)
         except Exception, e:

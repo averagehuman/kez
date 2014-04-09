@@ -7,11 +7,9 @@ pathexists = os.path.exists
 pathsplit = os.path.splitext
 
 from peewee import IntegrityError
-from watdarepo import watdarepo
-from giturlparse import parse as giturlparse
 
 from .models import Project, Document, Repository
-from .utils import ensure_dir
+from .utils import ensure_dir, parse_vcs_url
 from .exceptions import *
 
 class Manager(object):
@@ -26,22 +24,6 @@ class Manager(object):
         return Repository(project, self.vcs_cache)
 
     def add_project(self, name, url):
-        wat = watdarepo(url)
-        kwargs = {
-            "vcs": wat["vcs"],
-            "host": wat["hosting_service"],
-            "url": url,
-        }
-        if wat["vcs"] == "git":
-            parsed = giturlparse(url)
-            if not parsed.valid:
-                raise URLFormatError(url)
-            kwargs["host"] = parsed.host
-            kwargs["owner"] = parsed.owner
-            kwargs["repo"] = parsed.repo
-            kwargs["url"] = parsed.url2ssh
-        kwargs["name"] = name
-        kwargs["version"] = None
         try:
             Project.get(Project.url == url)
         except Project.DoesNotExist:
@@ -55,7 +37,7 @@ class Manager(object):
         else:
             raise ObjectExistsError(name)
         # create a new Project instance
-        project = Project(**kwargs)
+        project = Project.from_url(url, name=name)
         # checkout project repo and ensure a valid config file before saving
         repo = project.get_repo_object(self.vcs_cache)
         repo.checkout()
@@ -77,31 +59,24 @@ class Manager(object):
     def update_project(self, name):
         pass
 
-    def _build_document(self, repo, docname, output_path=None):
-    def build_project(self, project, docname=None, output_path=None):
-        dst = dstroot = None
+    def build_project(self, project, docnames=None, output_path=None):
+        """
+        Build all project documents OR, if docnames are given, one or more specific documents.
+        """
+        docnames = docnames or []
+        output_path = output_path or self.build_cache
         repo = Repository.instance(project, self.vcs_cache)
-        docs = repo.process()
-        doc = None
-        if docname:
-            for d in docs:
-                if d.name == docname:
-                    doc = d
-                    break
-            if not doc:
-                raise UnknownDocumentError(project, docname)
-            docs[:] = [doc]
-            if output_path:
-                dst = output_path
-            else:
-                dstroot = self.build_cache
+        if not docnames:
+            docs = repo.process()
         else:
-            dstroot = output_path or self.build_cache
+            docs = []
+            for doc in repo.process():
+                if doc.name in docnames:
+                    docs.append(doc)
+            invalid = set(docnames) - set(doc.name for doc in docs)
+            if invalid:
+                raise UnknownDocumentError(project, list(invalid)[0])
         for d in docs:
-            d.build(dst=dst, dstroot=dstroot)
-
-    def build_all(self):
-        for project in Project.select():
-            self.build_project(project)
-
+            d.build(dstroot=output_path)
+        return docs
 

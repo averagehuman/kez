@@ -10,10 +10,12 @@ import pytest
 
 from melba.builders.pelican.builder import build as build_pelican
 
+from .data import *
+
 pathexists = os.path.exists
 pathjoin = os.path.join
 
-def test_pelican_build(storage_root):
+def test_pelican_raw_build(storage_root):
     src = pathjoin(storage_root, 'pelican', 'samples', 'advanced')
     dst = tempfile.mkdtemp(prefix="melba-")
     assert pathexists(src)
@@ -38,4 +40,15 @@ def test_pelican_build(storage_root):
     build_pelican(src, dst, {}, settings)
     assert os.listdir(dst)
     shutil.rmtree(dst)
+
+def test_pelican_repository_build(manager):
+    project = None
+    for proj in manager.list_projects():
+        if proj.url == URL1:
+            project = proj
+            break
+    else:
+        project = manager.add_project("blog", URL1)
+    docs = manager.build_project(project.name)
+    assert len(docs) == 1
 

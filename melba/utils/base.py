@@ -9,12 +9,16 @@ except ImportError:
     from ast import literal_eval
 
 from slugify import slugify
+from watdarepo import watdarepo
+from giturlparse import parse as giturlparse
+
 
 __all__ = [
     'import_object',
     'String',
     'slugify',
     'slugify_vcs_url',
+    'parse_vcs_url',
     'evaluate_config_options',
     'ConfigParser',
     'NoOptionError',
@@ -37,7 +41,6 @@ def import_object(name):
         return getattr(obj, attr)
     except AttributeError, e:
         raise ImportError("'%s' does not exist in module '%s'" % (attr, m))
-
 
 class String(object):
     TIME_FORMAT = '%H:%M:%S.%f'
@@ -74,6 +77,26 @@ def slugify_vcs_url(url):
     if not at:
         path = scheme
     return slugify(path)
+
+def parse_vcs_url(url):
+    wat = watdarepo(url)
+    parts = {
+        "vcs": wat["vcs"],
+        "host": wat["hosting_service"],
+        "url": url,
+    }
+    if wat["vcs"] == "git":
+        parsed = giturlparse(url)
+        if not parsed.valid:
+            raise URLFormatError(url)
+        parts["host"] = parsed.host
+        parts["owner"] = parsed.owner
+        parts["repo"] = parsed.repo
+        parts["url"] = parsed.url2ssh
+    parts["slug"] = slugify_vcs_url(parts["url"])
+    while parts["host"] and "." in parts["host"]:
+        parts["host"] = parts["host"].partition(".")[0]
+    return parts
 
 class Python2Parser(BaseParser):
 

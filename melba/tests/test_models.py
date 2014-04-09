@@ -21,15 +21,22 @@ def test_vcs_checkout():
     assert pathexists(git)
     shutil.rmtree(tmp)
 
-def test_create_project(db):
+def test_create_project_from_url(db):
     query = list(Project.select())
     assert len(query) == 0
-    project = Project.create(name="blog", url=URL1)
+    project = Project.from_url(URL1, name="blog")
     assert project
     assert project.url == URL1
+    assert project.vcs == "git"
+    assert project.name == "blog"
+    assert project.host == "github"
+    project.save()
     query = list(Project.select())
     assert len(query) == 1
     assert query[0].url == URL1
+    assert query[0].vcs == "git"
+    assert query[0].name == "blog"
+    assert query[0].host == "github"
 
 def test_empty_and_non_empty_query():
     query = Project.select().where(Project.url=="doesnotexist")
@@ -37,11 +44,25 @@ def test_empty_and_non_empty_query():
     query = Project.select().where(Project.url==URL1)
     assert len(list(query)) == 1
 
+def test_read_project_repository_config(vcs_cache):
+    repo = Repository.instance("blog", vcs_cache)
+    repo.checkout()
+    cfg = repo.get_project_config()
+    assert cfg.sections() == ['maths.averagehuman.org']
+    kwargs = dict(cfg.items('maths.averagehuman.org'))
+    assert kwargs == {}
+
 def test_process_project_repository(vcs_cache):
     repo = Repository.instance("blog", vcs_cache)
+    repo.checkout()
     assert(len(list(Document.select()))) == 0
     repo.process()
-    assert(len(list(Document.select()))) == 1
+    docs = list(Document.select())
+    assert len(docs) == 1
+    doc = docs[0]
+    assert doc.doctype == "pelican"
+    assert doc.name == "gg"
+
 
 def test_delete_project(db):
     query = Project.select().where(Project.url==URL1)
