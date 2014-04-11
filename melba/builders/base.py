@@ -3,6 +3,7 @@ import os
 import sys
 
 from melba.exceptions import *
+from melba.utils import import_object
 
 pathjoin = os.path.join
 pathexists = os.path.exists
@@ -27,16 +28,11 @@ class BuildController(object):
         self._log = None
 
     def _get_build_func(self):
-        module = 'melba.builders.' + self.doctype.lower() + 'builder'
+        func = 'melba.builders.' + self.doctype.lower() + '.build'
         try:
-            m = sys.modules[module]
-        except KeyError:
-            try:
-                __import__(module)
-            except ImportError:
-                raise ConfigurationError("No builder for doctype '%s'" % self.doctype)
-            m = sys.modules[module]
-        return m.build
+            return import_object(func)
+        except ImportError:
+            raise ConfigurationError("No builder for doctype '%s'" % self.doctype)
 
     def build(self, stdout=None, stderr=None):
         self.start()

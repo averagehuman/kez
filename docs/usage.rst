@@ -23,10 +23,10 @@ optional arguments:
                         '~/.melba/data.db')
 <BLANKLINE>
 Commands:
+  add            Add a new project
+  build          Build project documents
   complete       print bash completion command
   help           print detailed help for another command
-  project add    Add a new source code repository
-  project build  Build all documents for a given project
-  project list   List all registered projects
+  list           List all projects
 
 

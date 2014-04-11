@@ -49,8 +49,7 @@ def test_read_project_repository_config(vcs_cache):
     repo.checkout()
     cfg = repo.get_project_config()
     assert cfg.sections() == ['maths.averagehuman.org']
-    kwargs = dict(cfg.items('maths.averagehuman.org'))
-    assert kwargs == {}
+    assert cfg.get('maths.averagehuman.org', 'doctype') == 'pelican'
 
 def test_process_project_repository(vcs_cache):
     repo = Repository.instance("blog", vcs_cache)
@@ -60,8 +59,8 @@ def test_process_project_repository(vcs_cache):
     docs = list(Document.select())
     assert len(docs) == 1
     doc = docs[0]
+    assert doc.name == "maths.averagehuman.org"
     assert doc.doctype == "pelican"
-    assert doc.name == "gg"
 
 
 def test_delete_project(db):

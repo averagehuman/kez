@@ -103,8 +103,8 @@ class Python2Parser(BaseParser):
     def _interpolate(self, section, option, rawval, vars):
         try:
             return literal_eval(rawval)
-        except:
-            return ''
+        except (ValueError, SyntaxError):
+            return rawval
 
 def ConfigParser():
     try:
