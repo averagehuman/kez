@@ -1,6 +1,7 @@
 
 import os
 import tempfile
+import shutil
 
 from peewee import Proxy, Model, SqliteDatabase
 from peewee import CharField, ForeignKeyField, TextField, DateTimeField
@@ -66,6 +67,9 @@ class Project(SluggedModel):
         kwargs = parse_vcs_url(url)
         kwargs["name"] = name or kwargs.get("repo") or kwargs["slug"]
         return cls(**kwargs)
+    
+    def __str__(self):
+        return self.name
 
     def set_slug(self):
         if hasattr(self, 'url') and self.url:
@@ -93,6 +97,9 @@ class Document(SluggedModel):
     author = CharField(max_length=80, null=True)
     description = TextField(null=True)
     last_build = DateTimeField(null=True)
+
+    def __str__(self):
+        return self.name
 
     def set_slug(self):
         if (hasattr(self, 'name') and self.name) and (hasattr(self, 'project') and self.project):
@@ -185,7 +192,7 @@ class Repository(object):
             options, settings = evaluate_config_options(cfg, doc.name)
             docs.append(
                 RepositoryDocument(
-                    doc, self._checkout, options, settings
+                    self._project, doc, self._checkout, options, settings
                 )
             )
         return docs
@@ -198,7 +205,8 @@ class RepositoryDocument(object):
             (Project.id == self.id) & (Document.name == docname)
         ).get()
 
-    def __init__(self, document, vcs_path, options, settings):
+    def __init__(self, project, document, vcs_path, options, settings):
+        self.project = project
         self.document = document
         self.vcs_path = vcs_path.rstrip('/')
         self.options = options
@@ -212,6 +220,9 @@ class RepositoryDocument(object):
     @property
     def slug(self):
         return self.document.slug
+
+    def __str__(self):
+        return "[%s] %s " % (self.project, self.document)
 
     def build(self, dst=None, dstroot=None, option_overrides=None):
         if not any([dst, dstroot]):
@@ -227,4 +238,8 @@ class RepositoryDocument(object):
         )
         controller.build()
         syncfiles(tmp, self.dst)
+        try:
+            shutil.rmtree(tmp)
+        except:
+            pass
 

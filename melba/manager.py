@@ -59,7 +59,7 @@ class Manager(object):
     def update_project(self, name):
         pass
 
-    def build_project(self, project, docnames=None, output_path=None):
+    def build_project(self, project, docnames=None, output_path=None, stdout=sys.stdout):
         """
         Build all project documents OR, if docnames are given, one or more specific documents.
         """
@@ -77,6 +77,8 @@ class Manager(object):
             if invalid:
                 raise UnknownDocumentError(project, list(invalid)[0])
         for d in docs:
+            stdout.write("***** STARTED BUILDING: %s *****\n" % d)
             d.build(dstroot=output_path)
+            stdout.write("***** FINISHED: %s *****\n" % d)
         return docs
 

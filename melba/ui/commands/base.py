@@ -114,11 +114,10 @@ class Build(BaseCommand):
 
     def take_action(self, args):
         try:
-            docs = self.manager.build_project(
-                args.project, docnames=args.docs, output_path=args.output_path
+            self.manager.build_project(
+                args.project, docnames=args.docs, output_path=args.output_path,
+                stdout=self.app.stdout,
             )
-            for doc in docs:
-                self.app.stdout.write("***** FINISHED BUILDING: %s *****\n" % doc.name)
         except Exception, e:
             self.app.stderr.write("ERROR: %s\n" % e)
 
