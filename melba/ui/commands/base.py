@@ -43,7 +43,7 @@ class List(BaseLister):
     def take_action(self, args):
         def iterobjects():
             for project in self.manager.list_projects():
-                yield project.name, project.host, project.owner, project.name, project.url
+                yield project.name, project.host, project.owner, project.repo, project.url
         return (
             ('Name', 'Host', 'Owner', 'Repo', 'Url'),
             sorted(iterobjects()),
@@ -52,7 +52,7 @@ class List(BaseLister):
 class Add(BaseCommand):
     """Add a new project
     
-    Eg. melba project add "maths-blog" git://git@github.com/averagehuman/maths.averagehuman.org
+    Eg. melba add blog git://git@<repo>
     """
 
     def get_parser(self, prog_name):
@@ -93,7 +93,7 @@ class Build(BaseCommand):
     """
 
     def get_parser(self, prog_name):
-        parser = super(Add, self).get_parser(prog_name)
+        parser = super(Build, self).get_parser(prog_name)
         parser.add_argument(
             'project',
             help="the name of a registered project",
@@ -101,7 +101,7 @@ class Build(BaseCommand):
         parser.add_argument(
             'docs',
             nargs='*',
-            help="optionally specify one or many documents to buld",
+            help="optionally specify one or many documents to build",
         )
         parser.add_argument(
             '-o',
@@ -115,10 +115,10 @@ class Build(BaseCommand):
     def take_action(self, args):
         try:
             docs = self.manager.build_project(
-                args.project, docs=args.docs, output_path=args.output_path
+                args.project, docnames=args.docs, output_path=args.output_path
             )
             for doc in docs:
-                self.app.stdout.write("%s\n" % doc.name)
+                self.app.stdout.write("***** FINISHED BUILDING: %s *****\n" % doc.name)
         except Exception, e:
             self.app.stderr.write("ERROR: %s\n" % e)
 

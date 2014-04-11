@@ -205,6 +205,14 @@ class RepositoryDocument(object):
         self.settings = settings
         self.dst = None
 
+    @property
+    def name(self):
+        return self.document.name
+
+    @property
+    def slug(self):
+        return self.document.slug
+
     def build(self, dst=None, dstroot=None, option_overrides=None):
         if not any([dst, dstroot]):
             raise Exception("a destination directory or a destination root directory must be given")
