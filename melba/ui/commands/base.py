@@ -118,6 +118,6 @@ class Build(BaseCommand):
                 args.project, docnames=args.docs, output_path=args.output_path,
                 stdout=self.app.stdout,
             )
-        except Exception, e:
+        except Exception as e:
             self.app.stderr.write("ERROR: %s\n" % e)
 

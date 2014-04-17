@@ -40,7 +40,7 @@ def manager(db, storage_root):
 @pytest.fixture
 def File():
     def FileOpener(relpath, mode="rb"):
-        return open(os.path.join(STORAGE_ROOT, relpath.lstrip('/')), mode)
+        return open(os.path.join(STORAGE_ROOT, relpath.lstrip('/')))
     return FileOpener
 
 @pytest.fixture

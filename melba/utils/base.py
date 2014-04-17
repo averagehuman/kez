@@ -3,7 +3,7 @@ from datetime import datetime
 try:
     from urlparse import urlparse
 except ImportError:
-    from urllib import parse as urlparse
+    from urllib.parse import urlparse
 
 try:
     from configparser import ConfigParser as BaseParser, NoOptionError
@@ -118,7 +118,7 @@ def ConfigParser():
         return Python2Parser()
     else:
         from .typedinterpolation import TypedBasicInterpolation
-        return BaseParser(interpolation=TypedBasicInterpolation)
+        return BaseParser(interpolation=TypedBasicInterpolation())
 
 def evaluate_config_options(cfg, section):
     options = {}
