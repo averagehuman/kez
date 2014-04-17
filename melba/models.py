@@ -167,12 +167,12 @@ class Repository(object):
             kwargs = {}
             try:
                 kwargs['docroot'] = cfg.get(section, 'docroot')
-            except NoOptionError, e:
+            except NoOptionError as e:
                 kwargs['docroot'] = None
             kwargs['docroot'] = (kwargs['docroot'] or '').strip('.')
             try:
                 kwargs['doctype'] = cfg.get(section, 'doctype')
-            except NoOptionError, e:
+            except NoOptionError as e:
                 raise ConfigurationError(str(e))
             try:
                 doc = self._project.get_document(section)

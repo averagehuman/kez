@@ -74,7 +74,7 @@ class Add(BaseCommand):
             self.app.stderr.write("Invalid url.\n")
         except ObjectExistsError:
             self.app.stderr.write("That project already exists.\n")
-        except Exception, e:
+        except Exception as e:
             self.app.stderr.write("ERROR: %s\n" % e)
 
 class Build(BaseCommand):

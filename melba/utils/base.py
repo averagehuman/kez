@@ -1,6 +1,9 @@
 
 from datetime import datetime
-from urlparse import urlparse
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib import parse as urlparse
 
 try:
     from configparser import ConfigParser as BaseParser, NoOptionError
@@ -41,7 +44,7 @@ def import_object(name):
     obj = __import__(m, None, None, [attr], 0)
     try:
         return getattr(obj, attr)
-    except AttributeError, e:
+    except AttributeError as e:
         raise ImportError("'%s' does not exist in module '%s'" % (attr, m))
 
 class String(object):

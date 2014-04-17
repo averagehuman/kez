@@ -41,7 +41,7 @@ class BuildController(object):
             self._build_func(
                 self.src, self.dst, self.options, self.settings, stdout, stderr
             )
-        except Exception, e:
+        except Exception as e:
             self.status = status.ERROR
             self.exc_info = e
         else:

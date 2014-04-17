@@ -48,7 +48,7 @@ class UICommandManager(CommandManager):
     def find_command(self, argv):
         try:
             return super(UICommandManager, self).find_command(argv)
-        except ValueError, err:
+        except ValueError as err:
             if str(err).startswith("Unknown command "):
                 raise ValueError("unknown command '%s'" % ' '.join(argv))
             raise
@@ -87,7 +87,7 @@ def main(argv=sys.argv[1:]):
         ui.run(argv)
     except KeyboardInterrupt:
         raise
-    except Exception, e:
+    except Exception as e:
         if '--debug' in argv:
             raise
         else:

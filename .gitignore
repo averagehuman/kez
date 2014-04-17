@@ -4,6 +4,8 @@ build/
 pip-log.txt
 *~
 env/
+env2/
+env3/
 dist/
 *.egg-info/
 example.db
