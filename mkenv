@@ -13,6 +13,17 @@
 
 set -e
 
+if [ -n "$PYVERSION" ]; then
+    if [ "$PYVERSION" = "2" ] || [ "$PYVERSION" = "3" ]; then
+        pyversion="$PYVERSION"
+    else
+        echo "Bad PYVERSION - '$PYVERSION'"
+        exit 1
+    fi
+else
+    pyversion="3"
+fi
+
 # If a directory has been given as first parameter, set 'envdir' to its
 # absolute path. Otherwise use a default directory within the current
 # working directory
@@ -21,7 +32,7 @@ if [ -n "$1" ]; then
     dir=$(basename $1)
     envdir="$(cd $root && pwd)/$dir"
 else
-    envdir="$(pwd)/env"
+    envdir="$(pwd)/env$pyversion"
 fi
 
 # If the environment 'envdir' does not exist, create it. By default, use conda
@@ -29,15 +40,15 @@ fi
 if [ ! -e "$envdir" ]; then
     command -v conda >/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        conda create --prefix "$envdir" --yes --mkdir numpy scipy ipython-notebook
+        conda create --prefix "$envdir" --yes --mkdir python="$pyversion" numpy scipy ipython-notebook
     else
         command -v orb >/dev/null 2>&1
         if [ $? -eq 0 ]; then
-            orb init "$envdir"
+            orb init"$pyversion" "$envdir"
         else
             command -v virtualenv >/dev/null 2>&1
             if [ $? -eq 0 ]; then
-                virtualenv "$envdir"
+                virtualenv --python="python$pyversion""$envdir"
             else
                 echo "ERROR: couldn't create environment. Install either conda or virtualenv."
                 exit 1
