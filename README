@@ -2,3 +2,14 @@
 melba
 =====
 
+
+Tests
+-----
+
+Run tests with Python-2 or Python-3::
+
+    $ make test PYVERSION=2
+    $ make test PYVERSION=3
+
+The PYVERSION paramater can be omitted, in which case it defaults to 3.
+
