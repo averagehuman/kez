@@ -77,7 +77,17 @@ class Add(BaseCommand):
         except Exception as e:
             self.app.stderr.write("ERROR: %s\n" % e)
 
-class Build(BaseCommand):
+class ProjectBaseCommand(BaseCommand):
+
+    def get_parser(self, prog_name):
+        parser = super(ProjectBaseCommand, self).get_parser(prog_name)
+        parser.add_argument(
+            'project',
+            help="the name of a registered project",
+        )
+        return parser
+
+class Build(ProjectBaseCommand):
     """Build project documents
     
     Eg.
@@ -94,10 +104,6 @@ class Build(BaseCommand):
 
     def get_parser(self, prog_name):
         parser = super(Build, self).get_parser(prog_name)
-        parser.add_argument(
-            'project',
-            help="the name of a registered project",
-        )
         parser.add_argument(
             'docs',
             nargs='*',
@@ -118,6 +124,19 @@ class Build(BaseCommand):
                 args.project, docnames=args.docs, output_path=args.output_path,
                 stdout=self.app.stdout,
             )
+        except Exception as e:
+            self.app.stderr.write("ERROR: %s\n" % e)
+
+class Serve(ProjectBaseCommand):
+    """Open a HTML document in a browser
+    
+    Eg. $ melba serve phd
+
+    """
+
+    def take_action(self, args):
+        try:
+            self.manager.serve_project(args.project)
         except Exception as e:
             self.app.stderr.write("ERROR: %s\n" % e)
 

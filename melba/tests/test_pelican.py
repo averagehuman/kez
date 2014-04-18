@@ -51,4 +51,9 @@ def test_pelican_repository_build(manager):
         project = manager.add_project("blog", URL1)
     docs = manager.build_project(project.name)
     assert len(docs) == 1
+    document = docs[0].document
+    assert document.local_root
+    html_index = document.get_html_index()
+    assert html_index
+    assert os.path.exists(html_index)
 

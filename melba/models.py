@@ -93,10 +93,18 @@ class Project(SluggedModel):
     def get_repo_object(self, vcs_cache):
         return Repository(self, vcs_cache)
 
-    def get_document(self, docname):
-        return Document.select().join(Project).where(
-            (Project.id == self.id) & (Document.name == docname)
-        ).get()
+    def get_document(self, docname=None):
+        if docname:
+            return Document.select().join(Project).where(
+                (Project.id == self.id) & (Document.name == docname)
+            ).get()
+        else:
+            docset = self.get_document_set()
+            if not docset:
+                return None
+            elif len(docset) > 1:
+                raise MultipleObjectsReturnedError
+            return docset[0]
 
     def get_document_set(self):
         return Document.select().join(Project).where(
@@ -112,6 +120,7 @@ class Document(SluggedModel):
     author = CharField(max_length=80, null=True)
     description = TextField(null=True)
     last_build = DateTimeField(null=True)
+    local_root = CharField(max_length=120, null=True)
 
     def __str__(self):
         return self.name
@@ -128,6 +137,17 @@ class Document(SluggedModel):
     def __init__(self, *args, **kwargs):
         super(Document, self).__init__(*args, **kwargs)
         self.set_docroot()
+
+    def get_html_index(self):
+        page = None
+        root = self.local_root
+        if root and pathexists(root):
+            possibles = ["index.html", "index.htm"]
+            for fname in os.listdir(root):
+                if fname.lower() in possibles:
+                    page = pathjoin(root, fname)
+                    break
+        return page
 
     def save(self, *args, **kwargs):
         self.set_docroot()
@@ -257,4 +277,6 @@ class RepositoryDocument(object):
             shutil.rmtree(tmp)
         except:
             pass
+        self.document.local_root = self.dst
+        self.document.save()
 

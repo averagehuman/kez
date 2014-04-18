@@ -82,3 +82,11 @@ class Manager(object):
             stdout.write("***** FINISHED: %s *****\n" % d)
         return docs
 
+    def serve_document(self, projectname, docname=None):
+        project = Project.get(Project.name == projectname)
+        doc = project.get_document(docname)
+        page = doc.get_html_index()
+        if not page:
+            raise NoDocumentIndexError
+        import webbrowser as wb
+        wb.open(r'file:///' + page)

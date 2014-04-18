@@ -28,5 +28,6 @@ Commands:
   complete       print bash completion command
   help           print detailed help for another command
   list           List all projects
+  serve          Open a HTML document in a browser
 
 

@@ -7,6 +7,7 @@ import shlex
 
 from cliff.app import App
 from cliff.command import Command
+from cliff.lister import Lister
 from cliff.commandmanager import CommandManager, EntryPointWrapper
 
 from melba import __version__
@@ -23,6 +24,7 @@ def get_default_data_path():
 
 def iscommandclass(obj):
     return obj is not Command \
+            and obj is not Lister \
             and inspect.isclass(obj) \
             and not inspect.isabstract(obj) \
             and hasattr(obj, '__dict__') \
