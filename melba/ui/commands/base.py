@@ -38,14 +38,19 @@ class BaseLister(Lister, ManagerMixin):
     pass
 
 class List(BaseLister):
-    """List all projects"""
+    """List all documents in each project"""
 
     def take_action(self, args):
         def iterobjects():
-            for project in self.manager.list_projects():
-                yield project.name, project.host, project.owner, project.repo, project.url
+            for project in sorted(self.manager.list_projects()):
+                docs = sorted(project.get_document_set())
+                if docs:
+                    for doc in docs:
+                        yield project.name, doc.name, doc.doctype.title(), project.url
+                else:
+                    yield project.name, "<Empty>", "", project.url
         return (
-            ('Name', 'Host', 'Owner', 'Repo', 'Url'),
+            ('Project', 'Document', 'Type', 'Url'),
             sorted(iterobjects()),
         )
 
@@ -124,6 +129,8 @@ class Build(ProjectBaseCommand):
                 args.project, docnames=args.docs, output_path=args.output_path,
                 stdout=self.app.stdout,
             )
+        except Project.DoesNotExist:
+            self.app.stderr.write("Unknown Project: %s\n" % args.project)
         except Exception as e:
             self.app.stderr.write("ERROR: %s\n" % e)
 

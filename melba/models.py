@@ -111,7 +111,7 @@ class Project(SluggedModel):
     def get_document_set(self):
         return Document.select().join(Project).where(
             (Project.id == self.id)
-        )
+        ).order_by(Document.id)
 
 class Document(SluggedModel):
     project = ForeignKeyField(Project, related_name="documents")
@@ -244,6 +244,7 @@ class Repository(object):
                     self._project, doc, self._checkout, options, settings
                 )
             )
+        #docs.sort(key=lambda X: X._project.id)
         return docs
 
 class RepositoryDocument(object):

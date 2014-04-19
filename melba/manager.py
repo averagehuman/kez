@@ -62,6 +62,9 @@ class Manager(object):
     def build_project(self, project, docnames=None, output_path=None, stdout=sys.stdout):
         """
         Build all project documents OR, if docnames are given, one or more specific documents.
+
+        The `docnames` parameter can be the actual name of a document or, for UI convenience,
+        the 1-based index of the document in the list of all project documents.
         """
         docnames = docnames or []
         output_path = output_path or self.build_cache
@@ -70,12 +73,16 @@ class Manager(object):
             docs = repo.process()
         else:
             docs = []
-            for doc in repo.process():
+            for idx, doc in enumerate(repo.process(), start=1):
                 if doc.name in docnames:
                     docs.append(doc)
-            invalid = set(docnames) - set(doc.name for doc in docs)
-            if invalid:
-                raise UnknownDocumentError(project, list(invalid)[0])
+                    docnames.remove(doc.name)
+                elif str(idx) in docnames:
+                    docs.append(doc)
+                    docnames.remove(str(idx))
+            #invalid = set(docnames) - set(doc.name for doc in docs)
+            if docnames:
+                raise UnknownDocumentError(project, list(docnames)[0])
         for d in docs:
             stdout.write("***** STARTED BUILDING: %s *****\n" % d)
             d.build(dstroot=output_path)
