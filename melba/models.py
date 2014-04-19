@@ -33,6 +33,8 @@ else:
     bytes = str
     basestring = basestring
 
+CONFIG_FILE_NAME = "servus.cfg"
+
 _db = Proxy()
 
 def sqlite_proxy(db_path):
@@ -120,7 +122,14 @@ class Document(SluggedModel):
     author = CharField(max_length=80, null=True)
     description = TextField(null=True)
     last_build = DateTimeField(null=True)
-    local_root = CharField(max_length=120, null=True)
+    local_root = CharField(max_length=250, null=True)
+
+    @classmethod
+    def instance(cls, project, docname):
+        """Create a new instance of an existing Document"""
+        return Document.select().join(Project).where(
+            (Project.id == self.id) & (Document.name == docname)
+        ).get()
 
     def __str__(self):
         return self.name
@@ -170,6 +179,7 @@ class Repository(object):
         return get_vcs_client(self._project.vcs, self._checkout)
 
     def checkout(self):
+        """Checkout or update a local copy of the repo via the appropriate VCS client"""
         path = self._checkout
         # if checkout directory exists and is empty, remove it
         if pathexists(path) and os.path.isdir(path) and not os.listdir(path):
@@ -180,7 +190,11 @@ class Repository(object):
         client.update(version=self._project.version)
 
     def get_project_config(self):
-        fpath = pathjoin(self._checkout, 'servus.cfg')
+        """Open and parse the project's config file
+        
+        Returns a ConfigParser instance
+        """
+        fpath = pathjoin(self._checkout, CONFIG_FILE_NAME)
         if not pathexists(fpath):
             raise MissingOrInvalidConfig(fpath)
         cfg = ConfigParser()
@@ -189,9 +203,9 @@ class Repository(object):
         return cfg
 
     def process(self):
-        """Read the project config file and create/update any documents defined there
+        """Read the project config file and create/update any documents defined therein
 
-        Return a list of `RepositoryDocument` objects.
+        Returns a list of `RepositoryDocument` objects.
         """
         existing = self._project.get_document_set()
         cfg = self.get_project_config()
@@ -234,12 +248,6 @@ class Repository(object):
 
 class RepositoryDocument(object):
 
-    @classmethod
-    def instance(cls, project, docname):
-        return Document.select().join(Project).where(
-            (Project.id == self.id) & (Document.name == docname)
-        ).get()
-
     def __init__(self, project, document, vcs_path, options, settings):
         self.project = project
         self.document = document
@@ -260,6 +268,11 @@ class RepositoryDocument(object):
         return "[%s] %s " % (self.project, self.document)
 
     def build(self, dst=None, dstroot=None, option_overrides=None):
+        """Build the document saving the output to [dst] or [dstroot]/[document.slug]
+        
+        Calls the `BuildController` to  take care of creating the relevant Builder for
+        the document's doctype.
+        """
         if not any([dst, dstroot]):
             raise Exception("a destination directory or a destination root directory must be given")
         src = pathjoin(self.vcs_path, self.document.docroot)
