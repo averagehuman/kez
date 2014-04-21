@@ -38,13 +38,12 @@ CONFIG_FILE_NAME = "servus.cfg"
 _db = Proxy()
 
 def sqlite_proxy(db_path):
-    if _db.obj is not None:
-        raise Exception("proxy is already initialised")
-    db_root_dir = os.path.dirname(db_path)
-    if not os.path.exists(db_root_dir):
-        os.makedirs(db_root_dir)
-    _db.initialize(SqliteDatabase(db_path))
-    _create_tables()
+    if _db.obj is None:
+        db_root_dir = os.path.dirname(db_path)
+        if not os.path.exists(db_root_dir):
+            os.makedirs(db_root_dir)
+        _db.initialize(SqliteDatabase(db_path))
+        _create_tables()
     return _db
 
 def _create_tables():
@@ -108,10 +107,34 @@ class Project(SluggedModel):
                 raise MultipleObjectsReturnedError
             return docset[0]
 
-    def get_document_set(self):
-        return Document.select().join(Project).where(
+    def get_document_set(self, ids=None):
+        docset = Document.select().join(Project).where(
             (Project.id == self.id)
         ).order_by(Document.id)
+        return self.filter_docset(self.name, docset, ids)
+
+    @staticmethod
+    def filter_docset(project, alldocs, ids):
+        """
+        Given a list of all of a project's documents, return those with name or id in ids.
+
+            + It is assumed that alldocs is already ordered by id.
+            + `project` is the name of the project
+        """
+        if not ids:
+            return alldocs
+        ids_copy = ids.copy()
+        filtered = []
+        for idx, doc in enumerate(alldocs, start=1):
+            if doc.name in ids_copy:
+                filtered.append(doc)
+                ids_copy.remove(doc.name)
+            elif str(idx) in ids_copy:
+                filtered.append(doc)
+                ids_copy.remove(str(idx))
+        if ids_copy:
+            raise UnknownDocumentError(project, list(ids_copy)[0])
+        return filtered
 
 class Document(SluggedModel):
     project = ForeignKeyField(Project, related_name="documents")

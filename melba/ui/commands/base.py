@@ -10,6 +10,8 @@ from melba.exceptions import *
 from melba.manager import Manager
 from melba.models import sqlite_proxy, Project, Document
 
+pathexists = os.path.exists
+
 def args_to_dict(arglist):
     kw = {}
     for arg in arglist:
@@ -46,7 +48,7 @@ class List(BaseLister):
                 docs = sorted(project.get_document_set())
                 if docs:
                     for doc in docs:
-                        yield project.name, doc.name, doc.doctype.title(), project.url
+                        yield project.name, doc.name, doc.doctype.upper(), project.url
                 else:
                     yield project.name, "<Empty>", "", project.url
         return (
@@ -141,9 +143,31 @@ class Serve(ProjectBaseCommand):
 
     """
 
+    def get_parser(self, prog_name):
+        parser = super(Serve, self).get_parser(prog_name)
+        parser.add_argument(
+            'docs',
+            nargs='*',
+            help="specify one or many documents to display",
+        )
+        return parser
+
     def take_action(self, args):
         try:
-            self.manager.serve_project(args.project)
+            self.manager.serve_documents(args.project, ids=args.docs)
+        except Exception as e:
+            self.app.stderr.write("ERROR: %s\n" % e)
+
+class Reset(Command):
+    """Remove all data
+    """
+
+    def take_action(self, args):
+        try:
+            db_path = self.app.options.data_path
+            if pathexists(db_path):
+                os.remove(db_path)
+                self.app.stdout.write("Database removed.\n")
         except Exception as e:
             self.app.stderr.write("ERROR: %s\n" % e)
 

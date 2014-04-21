@@ -69,31 +69,22 @@ class Manager(object):
         docnames = docnames or []
         output_path = output_path or self.build_cache
         repo = Repository.instance(project, self.vcs_cache)
-        if not docnames:
-            docs = repo.process()
-        else:
-            docs = []
-            for idx, doc in enumerate(repo.process(), start=1):
-                if doc.name in docnames:
-                    docs.append(doc)
-                    docnames.remove(doc.name)
-                elif str(idx) in docnames:
-                    docs.append(doc)
-                    docnames.remove(str(idx))
-            #invalid = set(docnames) - set(doc.name for doc in docs)
-            if docnames:
-                raise UnknownDocumentError(project, list(docnames)[0])
+        docs = Project.filter_docset(project, repo.process(), docnames)
         for d in docs:
             stdout.write("***** STARTED BUILDING: %s *****\n" % d)
             d.build(dstroot=output_path)
             stdout.write("***** FINISHED: %s *****\n" % d)
         return docs
 
-    def serve_document(self, projectname, docname=None):
+    def serve_documents(self, projectname, ids=None):
         project = Project.get(Project.name == projectname)
-        doc = project.get_document(docname)
-        page = doc.get_html_index()
-        if not page:
-            raise NoDocumentIndexError
+        docs = project.get_document_set(ids)
         import webbrowser as wb
-        wb.open(r'file:///' + page)
+        for doc in docs:
+            page = None
+            if doc:
+                page = doc.get_html_index()
+            if not page:
+                raise NoDocumentIndexError("Not found - index.html for '%s'" % doc)
+            wb.open(r'file:///' + page)
+

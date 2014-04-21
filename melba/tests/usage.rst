@@ -28,27 +28,48 @@ Commands:
   complete       print bash completion command
   help           print detailed help for another command
   list           List all documents in each project
+  reset          Remove all data
   serve          Open a HTML document in a browser
 
+Create a temporary database for what follows.
+
+>>> import tempfile, shlex
+>>> data_file, data_path = tempfile.mkstemp(prefix="melba-test-database")
+>>> def run(command):
+...     try:
+...         return ui.run(["-d", data_path] + shlex.split(command))
+...     except SystemExit:
+...         pass
 
 No projects are defined so `melba list` returns nothing.
 
->>> try:
-...     ui.run(["list"])
-... except SystemExit:
-...     pass
+>>> run("list")
+<BLANKLINE>
+0
 
 
 Add a project with `melba add <name> <repository>`.
 
->>> try:
-...     ui.run(["add", "myblog", "git@github.com:averagehuman/maths.averagehuman.org.git"])
-... except SystemExit:
-...     pass
+>>> run("add myblog git@github.com:averagehuman/maths.averagehuman.org.git")
+0
 
 
->>> try:
-...     ui.run(["list"])
-... except SystemExit:
-...     pass
+>>> run("list")
++---------+------------------------+---------+--------------------------------------------------------+
+| Project | Document               | Type    | Url                                                    |
++---------+------------------------+---------+--------------------------------------------------------+
+| myblog  | maths.averagehuman.org | PELICAN | git@github.com:averagehuman/maths.averagehuman.org.git |
++---------+------------------------+---------+--------------------------------------------------------+
+0
+
+Remove the `melba` database with `melba reset`:
+
+>>> import os
+>>> os.path.exists(data_path)
+True
+>>> run("reset")
+Database removed.
+0
+>>> os.path.exists(data_path)
+False
 

@@ -49,6 +49,7 @@ def test_pelican_repository_build(manager):
             break
     else:
         project = manager.add_project("blog", URL1)
+    count = len(manager.list_projects())
     docs = manager.build_project(project.name)
     assert len(docs) == 1
     document = docs[0].document
@@ -56,4 +57,6 @@ def test_pelican_repository_build(manager):
     html_index = document.get_html_index()
     assert html_index
     assert os.path.exists(html_index)
+    manager.delete_project("blog")
+    assert len(manager.list_projects()) == count - 1
 
