@@ -33,6 +33,7 @@ def get_settings(src, dst, theme_path, overrides):
     settings['DELETE_OUTPUT_DIRECTORY'] = False
     theme = settings.get('THEME', '').strip('/')
     if theme:
+        # try path relative to src
         theme = pathjoin(src, theme)
         if not pathexists(theme):
             theme = pathjoin(theme_path, theme)

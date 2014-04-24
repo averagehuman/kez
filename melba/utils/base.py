@@ -124,9 +124,10 @@ def evaluate_config_options(cfg, section):
     options = {}
     settings = {}
     for k, v in cfg.items(section):
-        if k == k.lower():
-            options[k] = v
-        elif k == k.upper():
-            settings[k] = v
+        if k:
+            if k == k.lower():
+                options[k] = v
+            elif k == k.upper():
+                settings[k] = v
     return options, settings
 

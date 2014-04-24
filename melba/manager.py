@@ -69,6 +69,7 @@ class Manager(object):
         docnames = docnames or []
         output_path = output_path or self.build_cache
         repo = Repository.instance(project, self.vcs_cache)
+        repo.checkout()
         docs = Project.filter_docset(project, repo.process(), docnames)
         for d in docs:
             stdout.write("***** STARTED BUILDING: %s *****\n" % d)
