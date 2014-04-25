@@ -115,10 +115,13 @@ def ConfigParser():
     try:
         import configparser
     except ImportError:
-        return Python2Parser()
+        parser = Python2Parser()
     else:
         from .typedinterpolation import TypedBasicInterpolation
-        return BaseParser(interpolation=TypedBasicInterpolation())
+        parser = BaseParser(interpolation=TypedBasicInterpolation())
+    # prevent configparser setting keys to lowercase
+    parser.optionxform = str
+    return parser
 
 def evaluate_config_options(cfg, section):
     options = {}

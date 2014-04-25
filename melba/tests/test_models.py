@@ -7,6 +7,7 @@ import peewee
 from vcstools import get_vcs_client
 
 from melba.models import Project, Document, Repository
+from melba.utils import evaluate_config_options
 from .data import *
 
 pathexists = os.path.exists
@@ -50,6 +51,9 @@ def test_read_project_repository_config(vcs_cache):
     cfg = repo.get_project_config()
     assert cfg.sections() == ['maths.averagehuman.org']
     assert cfg.get('maths.averagehuman.org', 'doctype') == 'pelican'
+    options, settings = evaluate_config_options(cfg, 'maths.averagehuman.org')
+    assert options['doctype'] == 'pelican'
+    assert settings['THEME'] == 'theme'
 
 def test_process_project_repository(vcs_cache):
     repo = Repository.instance("blog", vcs_cache)
