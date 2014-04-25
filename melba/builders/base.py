@@ -20,7 +20,7 @@ class BuildController(object):
         self.src = src
         self.dst = dst
         self.options = options or {}
-        self.settings = options or {}
+        self.settings = settings or {}
         self.logfile = pathjoin(self.dst, 'melba.log')
         self.status = None
         self.exc_info = None

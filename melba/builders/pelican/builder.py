@@ -17,9 +17,9 @@ isabs = os.path.isabs
 MELBA_PLUGIN_PATH = pathjoin(abspath(dirname(__file__)), 'plugins')
 MELBA_PLUGINS = [
     'html_rst_directive',
-    'ipython',
+    #'ipython',
     'multi_part',
-    'neigbours',
+    'neighbors',
 ]
 MELBA_THEMES = pathjoin(abspath(dirname(__file__)), 'themes')
 
