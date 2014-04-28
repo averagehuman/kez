@@ -23,3 +23,6 @@ class UnknownDocumentError(Exception):
         msg = "Unknown document '%s' in project '%s'" % (docname, project)
         super(UnknownDocumentError, self).__init__(msg)
 
+class NoDocumentIndexError(Exception):
+    pass
+
