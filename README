@@ -1,15 +1,41 @@
 
-melba
-=====
+kez
+===
+
+A simple command line utility for tracking and building documents, specifically
+`Pelican` blogs. Uses `cliff` and a local sqlite database object-mapped with
+`peewee`.
+
+Supported Document Types
+------------------------
+
++ Pelican
+
+In the future, possibly `Sphinx`.
+
+
+Required
+--------
+
++ cliff==1.6.0
++ pelican==3.3
++ peewee==2.2.2
++ vcstools==0.1.33
++ giturlparse.py==0.0.5
++ watdarepo==0.3.0
++ python-slugify==0.0.7
++ TypedInterpolation==0.0.5
 
 
 Tests
 -----
 
-Run tests with Python-2 or Python-3::
+Run tests with `Python 2` or `Python 3`::
 
+    $ make test
     $ make test PYVERSION=2
     $ make test PYVERSION=3
 
-The PYVERSION paramater can be omitted, in which case it defaults to 3.
+`Python 3` is the default if PYVERSION is not specified.
+
 

@@ -15,7 +15,7 @@ from slugify import slugify
 from watdarepo import watdarepo
 from giturlparse import parse as giturlparse
 
-from melba.exceptions import URLFormatError
+from kez.exceptions import URLFormatError
 
 
 __all__ = [

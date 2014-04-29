@@ -7,9 +7,9 @@ except ImportError:
 
 import pytest
 
-from melba.models import sqlite_proxy
-from melba.manager import Manager
-from melba.ui.application import UI
+from kez.models import sqlite_proxy
+from kez.manager import Manager
+from kez.ui.application import UI
 
 from .data import STORAGE_ROOT
 

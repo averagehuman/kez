@@ -1,5 +1,5 @@
 
-from melba.exceptions import *
+from kez.exceptions import *
 
 from .data import *
 

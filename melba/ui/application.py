@@ -10,17 +10,17 @@ from cliff.command import Command
 from cliff.lister import Lister
 from cliff.commandmanager import CommandManager, EntryPointWrapper
 
-from melba import __version__
-from melba.utils import import_object
+from kez import __version__
+from kez.utils import import_object
 
 pathjoin = os.path.join
 expanduser = os.path.expanduser
 
 def get_default_data_path():
     try:
-        return os.environ["MELBA_DATA_PATH"]
+        return os.environ["KEZ_DATA_PATH"]
     except KeyError:
-        return pathjoin(expanduser("~"), ".melba", "data.db")
+        return pathjoin(expanduser("~"), ".kez", "data.db")
 
 def iscommandclass(obj):
     return obj is not Command \
@@ -45,7 +45,7 @@ def commands_from_module(m, subcommand=True):
 class UICommandManager(CommandManager):
 
     def _load_commands(self):
-        self.commands.update(commands_from_module('melba.ui.commands.base', False))
+        self.commands.update(commands_from_module('kez.ui.commands.base', False))
 
     def find_command(self, argv):
         try:
@@ -56,14 +56,14 @@ class UICommandManager(CommandManager):
             raise
 
 class UI(App):
-    NAME = "melba"
+    NAME = "kez"
     log = logging.getLogger(__name__)
 
     def __init__(self, *args, **kwargs):
         kwargs.update(dict(
             description='Static Document Builder.',
             version=__version__,
-            command_manager=UICommandManager('melba.ui'),
+            command_manager=UICommandManager('kez.ui'),
             )
         )
         super(UI, self).__init__(*args, **kwargs)
@@ -76,7 +76,7 @@ class UI(App):
             action='store',
             dest='data_path',
             default=get_default_data_path(),
-            help="the path to an sqlite database (defaults to '~/.melba/data.db')",
+            help="the path to an sqlite database (defaults to '~/.kez/data.db')",
         )
         return parser
 

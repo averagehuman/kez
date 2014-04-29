@@ -1,9 +1,9 @@
 
 import pytest
 
-from melba.utils import parse_vcs_url
-from melba.utils import ConfigParser
-from melba.utils import evaluate_config_options
+from kez.utils import parse_vcs_url
+from kez.utils import ConfigParser
+from kez.utils import evaluate_config_options
 
 from .data import URL1
 

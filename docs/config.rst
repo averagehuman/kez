@@ -2,7 +2,7 @@
 Configuration
 =============
 
-The melba config file must be called `servus.cfg` and placed at the root level
+The `kez` config file must be called `kez.cfg` and placed at the root level
 of the repository.  It is an ini-style file with one or many sections, where
 each section defines a particular document. The `docroot` value in each section
 should give the directory, relative to the config file, where the document

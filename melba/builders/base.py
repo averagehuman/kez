@@ -2,8 +2,8 @@
 import os
 import sys
 
-from melba.exceptions import *
-from melba.utils import import_object
+from kez.exceptions import *
+from kez.utils import import_object
 
 pathjoin = os.path.join
 pathexists = os.path.exists
@@ -21,14 +21,14 @@ class BuildController(object):
         self.dst = dst
         self.options = options or {}
         self.settings = settings or {}
-        self.logfile = pathjoin(self.dst, 'melba.log')
+        self.logfile = pathjoin(self.dst, 'kez.log')
         self.status = None
         self.exc_info = None
         self._build_func = self._get_build_func()
         self._log = None
 
     def _get_build_func(self):
-        func = 'melba.builders.' + self.doctype.lower() + '.build'
+        func = 'kez.builders.' + self.doctype.lower() + '.build'
         try:
             return import_object(func)
         except ImportError:

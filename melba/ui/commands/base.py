@@ -6,9 +6,9 @@ import argparse
 from cliff.command import Command
 from cliff.lister import Lister
 
-from melba.exceptions import *
-from melba.manager import Manager
-from melba.models import sqlite_proxy, Project, Document
+from kez.exceptions import *
+from kez.manager import Manager
+from kez.models import sqlite_proxy, Project, Document
 
 pathexists = os.path.exists
 
@@ -59,7 +59,7 @@ class List(BaseLister):
 class Add(BaseCommand):
     """Add a new project
     
-    Eg. melba add blog git://git@<repo>
+    Eg. kez add blog git://git@<repo>
     """
 
     def get_parser(self, prog_name):
@@ -101,11 +101,11 @@ class Build(ProjectBaseCommand):
 
     Build all project documents:
 
-        $ melba build phd
+        $ kez build phd
 
     Build one or more specific documents in a project:
 
-        $ melba build phd prelim-findings bibliography
+        $ kez build phd prelim-findings bibliography
 
     """
 
@@ -139,7 +139,7 @@ class Build(ProjectBaseCommand):
 class Serve(ProjectBaseCommand):
     """Open a HTML document in a browser
     
-    Eg. $ melba serve phd
+    Eg. $ kez serve phd
 
     """
 

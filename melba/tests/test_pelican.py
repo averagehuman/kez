@@ -8,7 +8,7 @@ import shutil
 
 import pytest
 
-from melba.builders.pelican.builder import build as build_pelican
+from kez.builders.pelican.builder import build as build_pelican
 
 from .data import *
 
@@ -17,7 +17,7 @@ pathjoin = os.path.join
 
 def test_pelican_raw_build(storage_root):
     src = pathjoin(storage_root, 'pelican', 'samples', 'advanced')
-    dst = tempfile.mkdtemp(prefix="melba-")
+    dst = tempfile.mkdtemp(prefix="kez-")
     assert pathexists(src)
     settings = {}
     settings["AUTHOR"] = 'Alexis Métaireau'

@@ -6,10 +6,10 @@ from setuptools.command.test import test as TestCommand
 __version__ = "0.1"
 
 setup(
-    name="melba",
+    name="kez",
     version=__version__,
-    description="Build a Pelican blog from sources on github",
-    author="gmflanagan",
+    description="CLI for tracking and building documents, specifically Pelican static blogs",
+    author="gmf",
     author_email = "gmflanagan@outlook.com",
     classifiers=["Development Status :: 4 - Beta",
                 "Intended Audience :: Developers",
@@ -18,11 +18,11 @@ setup(
                 "Topic :: Software Development :: Libraries",
                 "Topic :: Software Development :: Libraries :: Python Modules",
                 ],
-    url="https://github.com/averagehuman/python-melba",
+    url="https://github.com/averagehuman/kez",
     license="BSD",
     packages = find_packages(),
     scripts = [
-        'bin/melba',
+        'bin/kez',
     ],
     include_package_data=True,
     zip_safe=False,

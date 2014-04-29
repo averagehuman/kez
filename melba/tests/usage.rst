@@ -1,6 +1,6 @@
 
 
->>> from melba.ui.application import UI
+>>> from kez.ui.application import UI
 >>> ui = UI()
 >>> try:
 ...     ui.run([])
@@ -20,7 +20,7 @@ optional arguments:
   --debug               show tracebacks on errors
   -d DATA_PATH, --data-path DATA_PATH
                         the path to an sqlite database (defaults to
-                        '~/.melba/data.db')
+                        '~/.kez/data.db')
 <BLANKLINE>
 Commands:
   add            Add a new project
@@ -34,21 +34,21 @@ Commands:
 Create a temporary database for what follows.
 
 >>> import tempfile, shlex
->>> data_file, data_path = tempfile.mkstemp(prefix="melba-test-database")
+>>> data_file, data_path = tempfile.mkstemp(prefix="kez-test-database")
 >>> def run(command):
 ...     try:
 ...         return ui.run(["-d", data_path] + shlex.split(command))
 ...     except SystemExit:
 ...         pass
 
-No projects are defined so `melba list` returns nothing.
+No projects are defined so `kez list` returns nothing.
 
 >>> run("list")
 <BLANKLINE>
 0
 
 
-Add a project with `melba add <name> <repository>`.
+Add a project with `kez add <name> <repository>`.
 
 >>> run("add myblog git@github.com:averagehuman/maths.averagehuman.org.git")
 0
@@ -62,7 +62,7 @@ Add a project with `melba add <name> <repository>`.
 +---------+------------------------+---------+--------------------------------------------------------+
 0
 
-Remove the `melba` database with `melba reset`:
+Remove the `kez` database with `kez reset`:
 
 >>> import os
 >>> os.path.exists(data_path)

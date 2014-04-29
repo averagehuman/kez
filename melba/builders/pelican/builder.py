@@ -14,18 +14,18 @@ basename = os.path.basename
 abspath = os.path.abspath
 isabs = os.path.isabs
 
-MELBA_PLUGIN_PATH = pathjoin(abspath(dirname(__file__)), 'plugins')
-MELBA_PLUGINS = [
+KEZ_PLUGIN_PATH = pathjoin(abspath(dirname(__file__)), 'plugins')
+KEZ_PLUGINS = [
     'html_rst_directive',
     #'ipython',
     'multi_part',
     'neighbors',
 ]
-MELBA_THEMES = pathjoin(abspath(dirname(__file__)), 'themes')
+KEZ_THEMES = pathjoin(abspath(dirname(__file__)), 'themes')
 
 def build(src, dst, options, local_settings, stdout=sys.stdout, stderr=sys.stderr):
     """The main Pelican build function"""
-    theme_path = options.get('theme_path', MELBA_THEMES)
+    theme_path = options.get('theme_path', KEZ_THEMES)
     settings = get_settings(src, dst, theme_path, local_settings)
     pelican = Pelican(settings)
     pelican.run()
@@ -46,8 +46,8 @@ def get_settings(src, dst, theme_path, local_settings):
     settings.update(local_settings)
     settings['PATH'] = norm_content_path(src, settings['PATH'])
     settings['OUTPUT_PATH'] = dst
-    settings['PLUGIN_PATH'] = MELBA_PLUGIN_PATH
-    settings['PLUGINS'] = MELBA_PLUGINS
+    settings['PLUGIN_PATH'] = KEZ_PLUGIN_PATH
+    settings['PLUGINS'] = KEZ_PLUGINS
     settings['DELETE_OUTPUT_DIRECTORY'] = False
     global PYGMENTS_RST_OPTIONS
     PYGMENTS_RST_OPTIONS = settings.get('PYGMENTS_RST_OPTIONS', None)

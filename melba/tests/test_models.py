@@ -6,15 +6,15 @@ import pytest
 import peewee
 from vcstools import get_vcs_client
 
-from melba.models import Project, Document, Repository
-from melba.utils import evaluate_config_options
+from kez.models import Project, Document, Repository
+from kez.utils import evaluate_config_options
 from .data import *
 
 pathexists = os.path.exists
 pathjoin = os.path.join
 
 def test_vcs_checkout():
-    tmp= mkdtemp(prefix="melba-test")
+    tmp= mkdtemp(prefix="kez-test-")
     git = pathjoin(tmp, '.git')
     assert not pathexists(git)
     client = get_vcs_client("git", tmp)

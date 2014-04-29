@@ -33,7 +33,7 @@ else:
     bytes = str
     basestring = basestring
 
-CONFIG_FILE_NAME = "servus.cfg"
+CONFIG_FILE_NAME = "kez.cfg"
 
 _db = Proxy()
 
@@ -300,7 +300,7 @@ class RepositoryDocument(object):
         if not any([dst, dstroot]):
             raise Exception("a destination directory or a destination root directory must be given")
         src = pathjoin(self.vcs_path, self.document.docroot)
-        tmp = tempfile.mkdtemp(prefix='melba-', suffix='-'+self.document.doctype)
+        tmp = tempfile.mkdtemp(prefix='kez-', suffix='-'+self.document.doctype)
         self.dst = dst or pathjoin(dstroot, self.document.slug)
         options = self.options.copy()
         if option_overrides:
