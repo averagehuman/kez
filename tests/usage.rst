@@ -65,9 +65,15 @@ Add a project with **kez add <name> <repository>**.
 +---------+------------------------+---------+--------------------------------------------------------+
 0
 
+
+Build the document:
+
 >>> run("build myblog") # doctest: +ELLIPSIS
 ***** STARTED BUILDING: [myblog] maths.averagehuman.org  *****
 ...
+
+If a root *index.html* has been successfully created, you can now view the
+document locally with **kez serve myblog**.
 
 Remove the kez database with **kez reset**:
 
