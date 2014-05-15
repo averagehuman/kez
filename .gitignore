@@ -14,5 +14,6 @@ src/
 __VCS__/
 __BUILD__/
 .coverage
+__pycache__
 
 
