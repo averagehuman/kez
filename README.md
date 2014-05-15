@@ -5,10 +5,11 @@ kez
 A simple command line utility for tracking and building documents, specifically
 [Pelican](http://docs.getpelican.com) blogs.
 
-Uses [cliff](http://cliff.readthedocs.org) and a local sqlite database
-object-mapped with [peewee](http://peewee.readthedocs.org).
+Uses [cliff](http://cliff.readthedocs.org) for the user interface, together
+with a local sqlite database object-mapped with
+[peewee](http://peewee.readthedocs.org).
 
-Tested with Python-2.7 and Python-3.4
+Tested with Python-2.7 and Python-3.4. Unlikely to work on windows.
 
 Supported Document Types
 ------------------------
