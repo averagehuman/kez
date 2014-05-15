@@ -3,8 +3,12 @@ kez
 ===
 
 A simple command line utility for tracking and building documents, specifically
-*Pelican* blogs. Uses *cliff* and a local sqlite database object-mapped with
-*peewee*. Tested with Python2 and Python3.
+[Pelican](http://docs.getpelican.com) blogs.
+
+Uses [cliff](http://cliff.readthedocs.org) and a local sqlite database
+object-mapped with [peewee](http://peewee.readthedocs.org).
+
+Tested with Python-2.7 and Python-3.4
 
 Supported Document Types
 ------------------------
