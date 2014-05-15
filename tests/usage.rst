@@ -2,6 +2,9 @@
 
 >>> from kez.ui.application import UI
 >>> ui = UI()
+
+Run without parameters, **kez** prints the help message:
+
 >>> try:
 ...     ui.run([])
 ... except SystemExit:
@@ -41,14 +44,14 @@ Create a temporary database for what follows.
 ...     except SystemExit:
 ...         pass
 
-No projects are defined so `kez list` returns nothing.
+No projects are defined so **kez list** returns nothing.
 
 >>> run("list")
 <BLANKLINE>
 0
 
 
-Add a project with `kez add <name> <repository>`.
+Add a project with **kez add <name> <repository>**.
 
 >>> run("add myblog git@github.com:averagehuman/maths.averagehuman.org.git")
 0
@@ -62,7 +65,11 @@ Add a project with `kez add <name> <repository>`.
 +---------+------------------------+---------+--------------------------------------------------------+
 0
 
-Remove the `kez` database with `kez reset`:
+>>> run("build myblog") # doctest: +ELLIPSIS
+***** STARTED BUILDING: [myblog] maths.averagehuman.org  *****
+...
+
+Remove the kez database with **kez reset**:
 
 >>> import os
 >>> os.path.exists(data_path)
