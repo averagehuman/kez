@@ -19,14 +19,14 @@ Required
 
 The following libraries are required:
 
-+ cliff
-+ pelican
-+ peewee
-+ vcstools
-+ giturlparse.py
-+ watdarepo
-+ python-slugify
-+ TypedInterpolation
++ [cliff](http://cliff.readthedocs.org)
++ [pelican](http://docs.getpelican.com)
++ [peewee](http://peewee.readthedocs.org)
++ [vcstools](https://pypi.python.org/pypi/vcstools/)
++ [giturlparse.py](https://pypi.python.org/pypi/giturlparse.py/)
++ [watdarepo](https://pypi.python.org/pypi/watdarepo/)
++ [python-slugify](https://pypi.python.org/pypi/python-slugify/)
++ [TypedInterpolation](https://pypi.python.org/pypi/TypedInterpolation/)
 
 
 Tests
