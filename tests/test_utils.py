@@ -21,13 +21,14 @@ def test_config_parser(File):
     cfg = ConfigParser()
     with File("example.cfg") as fp:
         cfg.readfp(fp)
-    strkey = cfg.get("section", "strkey")
-    intkey = cfg.get("section", "intkey")
-    listkey = cfg.get("section", "listkey")
+    strkey = cfg.get("section", "__strkey__")
+    intkey = cfg.get("section", "__intkey__")
+    listkey = cfg.get("section", "__listkey__")
     assert strkey == "pelican"
     assert intkey == 42
     assert listkey == [2, 4, 6, 8]
     options, settings = evaluate_config_options(cfg, "section")
+    # double-underscores are stripped
     assert options == {'strkey': 'pelican', 'intkey': 42, 'listkey': [2, 4, 6, 8]}
     assert settings == {'SITENAME': 'My Site', 'THEME': 'indigo'}
 

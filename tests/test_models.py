@@ -50,7 +50,7 @@ def test_read_project_repository_config(vcs_cache):
     repo.checkout()
     cfg = repo.get_project_config()
     assert cfg.sections() == ['maths.averagehuman.org']
-    assert cfg.get('maths.averagehuman.org', 'doctype') == 'pelican'
+    assert cfg.get('maths.averagehuman.org', '__doctype__') == 'pelican'
     options, settings = evaluate_config_options(cfg, 'maths.averagehuman.org')
     assert options['doctype'] == 'pelican'
     assert settings['THEME'] == 'theme'

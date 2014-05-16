@@ -130,7 +130,7 @@ def evaluate_config_options(cfg, section):
     for k, v in cfg.items(section):
         if k:
             if k[:2] == dunder and k[-2:] == dunder:
-                options[k] = v
+                options[k[2:-2]] = v
             else:
                 settings[k] = v
     return options, settings
