@@ -1,4 +1,9 @@
 
 include bin/*
 include LICENSE
+recursive-include tests *
+prune tests/__*__
+prune tests/data/__*__
+recursive-exclude tests *.pyc
+exclude tests/data/example.db
 

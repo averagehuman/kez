@@ -1,6 +1,6 @@
 #!/bin/sh
 
-grep "__version__.*dev['\"]$" html2rest.py >/dev/null 2>&1
+grep "__version__.*dev['\"]$" kez/__init__.py >/dev/null 2>&1
 
 if [ $? -eq 0 ]; then
     # dev

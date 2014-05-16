@@ -41,7 +41,7 @@ Configuration
 
 The source repository must have an ini-style config file called **kez.cfg**
 containing one or many sections, where each section defines a particular
-document.  The **docroot** value in each section
+document.  The **__docroot__** value in each section
 should give the directory, relative to the config file, where the document
 sources are located (defaulting to the config file's directory).
 
@@ -102,18 +102,4 @@ Run tests with *Python 2* or *Python 3*:
 
 *Python 3* is the default if PYVERSION is not specified.
 
-
-Usage
------
-
-
-    $ kez add myblog git@github.com:averagehuman/maths.averagehuman.org.git
-    $ kez build myblog
-    $ kez serve myblog
-    $ kez list
-    +---------+------------------------+---------+--------------------------------------------------------+
-    | Project | Document               | Type    | Url                                                    |
-    +---------+------------------------+---------+--------------------------------------------------------+
-    | myblog  | maths.averagehuman.org | PELICAN | git@github.com:averagehuman/maths.averagehuman.org.git |
-    +---------+------------------------+---------+--------------------------------------------------------+
 
