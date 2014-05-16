@@ -126,11 +126,12 @@ def ConfigParser():
 def evaluate_config_options(cfg, section):
     options = {}
     settings = {}
+    dunder = '__'
     for k, v in cfg.items(section):
         if k:
-            if k == k.lower():
+            if k[:2] == dunder and k[-2:] == dunder:
                 options[k] = v
-            elif k == k.upper():
+            else:
                 settings[k] = v
     return options, settings
 
