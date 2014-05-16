@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
 
 __version__ = "0.1"
 
