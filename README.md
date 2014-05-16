@@ -11,6 +11,63 @@ with a local sqlite database object-mapped with
 
 Tested with Python-2.7 and Python-3.4. Unlikely to work on windows.
 
+Usage
+-----
+
+Add a repository containing document source files:
+
+    $ kez add myblog git@github.com:averagehuman/maths.averagehuman.org.git
+
+Build any documents defined therein:
+
+    $ kez build myblog
+
+Track projects:
+
+    $ kez list
+    +---------+------------------------+---------+--------------------------------------------------------+
+    | Project | Document               | Type    | Url                                                    |
+    +---------+------------------------+---------+--------------------------------------------------------+
+    | myblog  | maths.averagehuman.org | PELICAN | git@github.com:averagehuman/maths.averagehuman.org.git |
+    +---------+------------------------+---------+--------------------------------------------------------+
+
+After building, if there is a root *index.html*, open the document in a browser window:
+
+    $ kez serve myblog
+
+
+Configuration
+-------------
+
+The source repository must have an ini-style config file called **kez.cfg**
+containing one or many sections, where each section defines a particular
+document.  The **docroot** value in each section
+should give the directory, relative to the config file, where the document
+sources are located (defaulting to the config file's directory).
+
+By convention, a double-underscored key is a build meta-option, while any
+other key is an option required or with meaning to the program which
+is called to produce the document (eg. Sphinx, Pelican,..).
+
+
+Example **kez.cfg**
+-------------------
+
+    [maths.averagehuman.org]
+    __doctype__ = pelican
+    AUTHOR = Buzz Lightyear (MSc Phd)
+    SITENAME = Beyond Infinity
+    SITEURL = blog.beyondinfinity.net
+    ARTICLE_URL = {date:%Y}/{date:%m}/{slug}/
+    ARTICLE_LANG_URL = {date:%Y}/{date:%m}/{lang}/{slug}/
+    PAGE_URL = {slug}/
+    PAGE_LANG_URL = {lang}/{slug}/
+    ARTICLE_SAVE_AS = {date:%Y}/{date:%m}/{slug}/index.html
+    ARTICLE_LANG_SAVE_AS = {lang}/{date:%Y}/{date:%m}/{slug}/index.html
+    PAGE_SAVE_AS = {slug}/index.html
+    PAGE_LANG_SAVE_AS = {lang}/{slug}/index.html
+
+
 Supported Document Types
 ------------------------
 
@@ -45,4 +102,18 @@ Run tests with *Python 2* or *Python 3*:
 
 *Python 3* is the default if PYVERSION is not specified.
 
+
+Usage
+-----
+
+
+    $ kez add myblog git@github.com:averagehuman/maths.averagehuman.org.git
+    $ kez build myblog
+    $ kez serve myblog
+    $ kez list
+    +---------+------------------------+---------+--------------------------------------------------------+
+    | Project | Document               | Type    | Url                                                    |
+    +---------+------------------------+---------+--------------------------------------------------------+
+    | myblog  | maths.averagehuman.org | PELICAN | git@github.com:averagehuman/maths.averagehuman.org.git |
+    +---------+------------------------+---------+--------------------------------------------------------+
 
