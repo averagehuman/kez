@@ -1,12 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
 pandoc -f markdown -t rst -o README README.md
 
-grep "__version__.*dev['\"]$" setup.py >/dev/null 2>&1
+version="$(grep __version__ kez/__init__.py)"
+echo $version
 
-if [ $? -eq 0 ]; then
+sed -i "s/^__version__.*$/$version/" setup.py  
+
+if [[ "$version" == *dev* ]]; then
     # dev
     python setup.py sdist --formats=gztar,zip
 else

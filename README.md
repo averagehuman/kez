@@ -41,7 +41,7 @@ Configuration
 
 The source repository must have an ini-style config file called **kez.cfg**
 containing one or many sections, where each section defines a particular
-document.  The **__docroot__** value in each section
+document.  The **\_\_docroot\_\_** value in each section
 should give the directory, relative to the config file, where the document
 sources are located (defaulting to the config file's directory).
 

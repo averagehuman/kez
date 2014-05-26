@@ -7,6 +7,7 @@ include README.md
 include mkenv
 include requirements.txt
 include test-requirements.txt
+recursive-include vendor *
 recursive-include tests *
 prune tests/__*__
 prune tests/data/__*__
