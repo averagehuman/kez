@@ -22,10 +22,10 @@ def test_vcs_checkout():
     assert pathexists(git)
     shutil.rmtree(tmp)
 
-def test_create_project_from_url(db):
+def test_create_project_from_url(db, vcs_cache):
     query = list(Project.select())
     assert len(query) == 0
-    project = Project.from_url(URL1, name="blog")
+    project, repo = Project.from_url(URL1, vcs_cache, name="blog")
     assert project
     assert project.url == URL1
     assert project.vcs == "git"

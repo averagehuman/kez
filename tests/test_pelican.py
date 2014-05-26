@@ -15,7 +15,7 @@ from .data import *
 pathexists = os.path.exists
 pathjoin = os.path.join
 
-def test_pelican_raw_build(storage_root):
+def test_pelican_raw_build(storage_root, vcs_cache):
     src = pathjoin(storage_root, 'pelican', 'samples', 'advanced')
     dst = tempfile.mkdtemp(prefix="kez-")
     assert pathexists(src)
@@ -37,7 +37,7 @@ def test_pelican_raw_build(storage_root):
     settings["DEFAULT_PAGINATION"] = 4
     settings["DEFAULT_DATE"] = (2012, 3, 2, 14, 1, 1)
     assert not os.listdir(dst)
-    build_pelican(src, dst, {}, settings)
+    build_pelican(src, dst, vcs_cache, {}, settings)
     assert os.listdir(dst)
     shutil.rmtree(dst)
 

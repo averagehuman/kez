@@ -27,6 +27,7 @@ __all__ = [
     'evaluate_config_options',
     'ConfigParser',
     'NoOptionError',
+    'urlparse',
 ]
 
 def import_object(name):

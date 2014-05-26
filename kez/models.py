@@ -79,10 +79,12 @@ class Project(SluggedModel):
     version = CharField(max_length=40, null=True)
 
     @classmethod
-    def from_url(cls, url, name=None):
+    def from_url(cls, url, vcs_cache, name=None):
         kwargs = parse_vcs_url(url)
         kwargs["name"] = name or kwargs.get("repo") or kwargs["slug"]
-        return cls(**kwargs)
+        project = cls(**kwargs)
+        repo = Repository(project, vcs_cache)
+        return project, repo
     
     def __str__(self):
         return self.name
@@ -90,9 +92,6 @@ class Project(SluggedModel):
     def set_slug(self):
         if hasattr(self, 'url') and self.url:
             self.slug = slugify_vcs_url(self.url)
-
-    def get_repo_object(self, vcs_cache):
-        return Repository(self, vcs_cache)
 
     def get_document(self, docname=None):
         if docname:
@@ -291,7 +290,7 @@ class RepositoryDocument(object):
     def __str__(self):
         return "[%s] %s " % (self.project, self.document)
 
-    def build(self, dst=None, dstroot=None, option_overrides=None):
+    def build(self, vcs_cache, dst=None, dstroot=None, option_overrides=None):
         """Build the document saving the output to [dst] or [dstroot]/[document.slug]
         
         Calls the `BuildController` to  take care of creating the relevant Builder for
@@ -306,7 +305,7 @@ class RepositoryDocument(object):
         if option_overrides:
             options.update(option_overrides)
         controller = BuildController(
-            self.document.doctype, src, tmp, options, self.settings
+            self.document.doctype, src, tmp, vcs_cache, options, self.settings
         )
         controller.build()
         syncfiles(tmp, self.dst)

@@ -37,9 +37,8 @@ class Manager(object):
         else:
             raise ObjectExistsError(name)
         # create a new Project instance
-        project = Project.from_url(url, name=name)
+        project, repo = Project.from_url(url, self.vcs_cache, name=name)
         # checkout project repo and ensure a valid config file before saving
-        repo = project.get_repo_object(self.vcs_cache)
         repo.checkout()
         repo.get_project_config()
         # save and return project
@@ -73,7 +72,7 @@ class Manager(object):
         docs = Project.filter_docset(project, repo.process(), docnames)
         for d in docs:
             stdout.write("***** STARTED BUILDING: %s *****\n" % d)
-            d.build(dstroot=output_path)
+            d.build(self.vcs_cache, dstroot=output_path)
             stdout.write("***** FINISHED: %s *****\n" % d)
         return docs
 

@@ -15,10 +15,11 @@ class status:
 
 class BuildController(object):
 
-    def __init__(self, doctype, src, dst, options=None, settings=None):
+    def __init__(self, doctype, src, dst, vcs_cache, options=None, settings=None):
         self.doctype = doctype
         self.src = src
         self.dst = dst
+        self.vcs_cache = vcs_cache
         self.options = options or {}
         self.settings = settings or {}
         self.logfile = pathjoin(self.dst, 'kez.log')
@@ -39,7 +40,7 @@ class BuildController(object):
         self.status = status.PENDING
         try:
             self._build_func(
-                self.src, self.dst, self.options, self.settings, stdout, stderr
+                self.src, self.dst, self.vcs_cache, self.options, self.settings, stdout, stderr
             )
         except Exception as e:
             self.status = status.ERROR

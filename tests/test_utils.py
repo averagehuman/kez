@@ -30,5 +30,8 @@ def test_config_parser(File):
     options, settings = evaluate_config_options(cfg, "section")
     # double-underscores are stripped
     assert options == {'strkey': 'pelican', 'intkey': 42, 'listkey': [2, 4, 6, 8]}
-    assert settings == {'SITENAME': 'My Site', 'THEME': 'indigo'}
+    assert settings['SITENAME'] == 'My Site'
+    assert settings['THEME_URL'] == 'git@github.com:fjavieralba/flasky.git'
+    assert settings['DATE_FORMAT'] == {'en': '%d %m %Y'}
+
 
