@@ -8,6 +8,7 @@ from pelican.settings import DEFAULT_CONFIG, DEFAULT_THEME, PYGMENTS_RST_OPTIONS
 from pelican.settings import configure_settings
 
 from kez.utils import urlparse
+from kez.models import Project
 
 pathjoin = os.path.join
 pathexists = os.path.exists
@@ -33,7 +34,7 @@ def build(src, dst, vcs_cache, options, local_settings, stdout=sys.stdout, stder
     pathto = None
     # checkout remote theme
     if theme_url:
-        _, repo = Project.from_url(theme, vcs_cache)
+        _, repo = Project.from_url(theme_url, vcs_cache)
         repo.checkout()
         pathto = repo._checkout
     if theme:

@@ -35,3 +35,13 @@ def test_config_parser(File):
     assert settings['DATE_FORMAT'] == {'en': '%d %m %Y'}
 
 
+def test_advanced_config(File):
+    cfg = ConfigParser()
+    with File("adv-example.cfg") as fp:
+        cfg.readfp(fp)
+    options, settings = evaluate_config_options(cfg, "maths.averagehuman.org")
+    assert settings["THEME_URL"] == "git@github.com:fjavieralba/flasky.git"
+    assert settings["DATE_FORMAT"] == {'en': '%d %m %Y', 'us': '%m %d %Y'}
+    assert len(settings["SECTIONS"]) == 6
+    assert len(settings["SECTIONS"][0]) == 2
+

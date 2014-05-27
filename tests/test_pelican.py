@@ -15,10 +15,7 @@ from .data import *
 pathexists = os.path.exists
 pathjoin = os.path.join
 
-def test_pelican_raw_build(storage_root, vcs_cache):
-    src = pathjoin(storage_root, 'pelican', 'samples', 'advanced')
-    dst = tempfile.mkdtemp(prefix="kez-")
-    assert pathexists(src)
+def example_settings():
     settings = {}
     settings["AUTHOR"] = 'Alexis Métaireau'
     settings["SITENAME"] = "Alexis' log"
@@ -36,9 +33,16 @@ def test_pelican_raw_build(storage_root, vcs_cache):
     settings["LOCALE"] = "C"
     settings["DEFAULT_PAGINATION"] = 4
     settings["DEFAULT_DATE"] = (2012, 3, 2, 14, 1, 1)
+    return settings
+
+def test_pelican_raw_build(storage_root, vcs_cache):
+    src = pathjoin(storage_root, 'pelican', 'samples', 'advanced')
+    dst = tempfile.mkdtemp(prefix="kez-")
+    assert pathexists(src)
     assert not os.listdir(dst)
+    settings = example_settings()
     build_pelican(src, dst, vcs_cache, {}, settings)
-    assert os.listdir(dst)
+    assert "index.html" in os.listdir(dst)
     shutil.rmtree(dst)
 
 def test_pelican_repository_build(manager):
@@ -59,4 +63,16 @@ def test_pelican_repository_build(manager):
     assert os.path.exists(html_index)
     manager.delete_project("blog")
     assert len(manager.list_projects()) == count - 1
+
+def test_pelican_with_remote_theme(storage_root, vcs_cache):
+    src = pathjoin(storage_root, 'pelican', 'samples', 'advanced')
+    dst = tempfile.mkdtemp(prefix="kez-")
+    assert pathexists(src)
+    assert not os.listdir(dst)
+    settings = example_settings()
+    settings["THEME"] = ""
+    settings["THEME_URL"] = "git@github.com:fjavieralba/flasky.git"
+    build_pelican(src, dst, vcs_cache, {}, settings)
+    assert "index.html" in os.listdir(dst)
+    shutil.rmtree(dst)
 
