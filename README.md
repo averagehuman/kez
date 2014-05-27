@@ -18,7 +18,8 @@ Add a repository containing document source files:
 
     $ kez add myblog git@github.com:averagehuman/maths.averagehuman.org.git
 
-Build any documents defined therein:
+If there is a valid **kez.cfg** present in the repository root, build any
+documents defined therein:
 
     $ kez build myblog
 
@@ -35,6 +36,10 @@ After building, if there is a root *index.html*, open the document in a browser 
 
     $ kez serve myblog
 
+TODO
+''''
+
+Support uploading the built files to a remote server.
 
 Configuration
 -------------
@@ -58,12 +63,12 @@ Example **kez.cfg**
     AUTHOR = Buzz Lightyear (MSc Phd)
     SITENAME = Beyond Infinity
     SITEURL = blog.beyondinfinity.net
-    ARTICLE_URL = {date:%Y}/{date:%m}/{slug}/
-    ARTICLE_LANG_URL = {date:%Y}/{date:%m}/{lang}/{slug}/
+    ARTICLE_URL = {date:%%Y}/{date:%%m}/{slug}/
+    ARTICLE_LANG_URL = {date:%%Y}/{date:%%m}/{lang}/{slug}/
     PAGE_URL = {slug}/
     PAGE_LANG_URL = {lang}/{slug}/
-    ARTICLE_SAVE_AS = {date:%Y}/{date:%m}/{slug}/index.html
-    ARTICLE_LANG_SAVE_AS = {lang}/{date:%Y}/{date:%m}/{slug}/index.html
+    ARTICLE_SAVE_AS = {date:%%Y}/{date:%%m}/{slug}/index.html
+    ARTICLE_LANG_SAVE_AS = {lang}/{date:%%Y}/{date:%%m}/{slug}/index.html
     PAGE_SAVE_AS = {slug}/index.html
     PAGE_LANG_SAVE_AS = {lang}/{slug}/index.html
 
@@ -75,6 +80,27 @@ Supported Document Types
 
 In the future, possibly *Sphinx*.
 
+Pelican Themes
+--------------
+
+Pelican theme files can be included in the document repository and enabled by
+setting the **THEME** config option to the relative path to those files.
+
+    THEME = path/to/theme
+
+Alternatively, there is a **THEME_URL** setting which can be set to a
+git/mercurial repo.  If the theme files are in some subdirectory of the repo,
+then set **THEME** to the appropriate relative path, otherwise **THEME** should
+not be present or be null.
+
+So, either:
+
+    THEME_URL = git@github.com:awsomhakr/awsomhakr-theme.git
+
+or:
+
+    THEME_URL = git@github.com:getpelican/pelican-themes.git
+    THEME = bootstrap2
 
 Required
 --------
