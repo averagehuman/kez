@@ -33,7 +33,7 @@ else:
     bytes = str
     basestring = basestring
 
-CONFIG_FILE_NAME = "kez.cfg"
+CONFIG_FILE_NAME = "servus.cfg"
 
 _db = Proxy()
 
