@@ -53,7 +53,7 @@ def test_read_project_repository_config(vcs_cache):
     assert cfg.get('maths.averagehuman.org', '__doctype__') == 'pelican'
     options, settings = evaluate_config_options(cfg, 'maths.averagehuman.org')
     assert options['doctype'] == 'pelican'
-    assert settings['THEME'] == 'theme'
+    assert settings['THEME']
 
 def test_process_project_repository(vcs_cache):
     repo = Repository.instance("blog", vcs_cache)
